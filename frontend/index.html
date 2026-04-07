@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SalesAssist – 소싱/마진 관리</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <h1>SalesAssist – 소싱 &amp; 마진 관리</h1>
+
+  <!-- ===== Config ===== -->
+  <section id="config-section">
+    <h2>수수료 / 기타비용 설정</h2>
+    <form id="config-form">
+      <label>
+        네이버 수수료 (%):
+        <input type="number" id="naver_fee" step="0.01" min="0" max="100" />
+      </label>
+      <label>
+        쿠팡 수수료 (%):
+        <input type="number" id="coupang_fee" step="0.01" min="0" max="100" />
+      </label>
+      <label>
+        기본 기타비용 (원, 포장/배송 등):
+        <input type="number" id="extra_cost" step="1" min="0" />
+      </label>
+      <button type="button" onclick="saveConfig()">저장</button>
+    </form>
+  </section>
+
+  <!-- ===== Add Item ===== -->
+  <section id="add-section">
+    <h2>상품 추가</h2>
+    <form id="add-form">
+      <label>상품명: <input type="text" id="f_name" /></label>
+      <label>소싱처: <input type="text" id="f_source" /></label>
+      <label>소싱 URL: <input type="text" id="f_url" /></label>
+      <label>원가 (원): <input type="number" id="f_cost" step="1" min="0" value="0" /></label>
+      <label>판매가 (원): <input type="number" id="f_sell" step="1" min="0" value="0" /></label>
+      <label>옵션: <input type="text" id="f_option" /></label>
+      <label>메모: <input type="text" id="f_memo" /></label>
+      <button type="button" onclick="addItem()">추가</button>
+    </form>
+  </section>
+
+  <!-- ===== Items Table ===== -->
+  <section id="items-section">
+    <h2>상품 목록</h2>
+    <div id="items-table-wrapper">
+      <table id="items-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>상품명</th>
+            <th>소싱처</th>
+            <th>원가</th>
+            <th>판매가</th>
+            <th>네이버 마진율</th>
+            <th>쿠팡 마진율</th>
+            <th>옵션</th>
+            <th>메모</th>
+            <th>URL</th>
+            <th>수정/삭제</th>
+          </tr>
+        </thead>
+        <tbody id="items-tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ===== Export ===== -->
+  <section id="export-section">
+    <h2>엑셀 내보내기</h2>
+    <button type="button" onclick="exportNaver()">네이버용 엑셀 다운로드</button>
+    <button type="button" onclick="exportCoupang()">쿠팡용 엑셀 다운로드</button>
+  </section>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
