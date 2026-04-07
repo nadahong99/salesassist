@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SalesAssist – 소싱/마진 계산기</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", "맑은 고딕", sans-serif;
+      background: #f4f6f9;
+      color: #333;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #2563eb;
+      color: #fff;
+      padding: 14px 24px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px 16px; }
+
+    /* ── Config card ─────────────────────────────────────── */
+    .card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,.1);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; color: #1d4ed8; }
+
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .config-field label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
+    .config-field input {
+      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: .9rem;
+    }
+    .config-field input:focus { outline: 2px solid #2563eb; border-color: transparent; }
+
+    .btn {
+      display: inline-block; padding: 8px 18px; border-radius: 7px;
+      border: none; cursor: pointer; font-size: .88rem; font-weight: 600;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-success { background: #16a34a; color: #fff; }
+    .btn-danger  { background: #dc2626; color: #fff; }
+    .btn-outline { background: #fff; color: #2563eb; border: 1.5px solid #2563eb; }
+
+    .config-actions { margin-top: 14px; display: flex; gap: 10px; }
+
+    /* ── Add-item form ───────────────────────────────────── */
+    .item-form-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr 2fr auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .item-form-grid label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
+    .item-form-grid input {
+      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: .9rem;
+    }
+    .item-form-grid input:focus { outline: 2px solid #2563eb; border-color: transparent; }
+
+    /* ── Table ───────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    thead tr { background: #eff6ff; }
+    th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #e5e7eb; }
+    th { font-weight: 600; white-space: nowrap; }
+    td.name-cell { text-align: left; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    tr:hover td { background: #f0f9ff; }
+
+    .margin-good   { background: #dcfce7; color: #15803d; font-weight: 600; }
+    .margin-ok     { background: #fef9c3; color: #854d0e; font-weight: 600; }
+    .margin-bad    { background: #fee2e2; color: #991b1b; font-weight: 600; }
+
+    .action-btns { display: flex; gap: 6px; justify-content: center; }
+
+    /* ── Edit modal ─────────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.4); z-index: 100;
+      justify-content: center; align-items: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: #fff; border-radius: 12px; padding: 24px 28px;
+      width: 480px; max-width: 95vw; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+    }
+    .modal h3 { margin-bottom: 16px; font-size: 1.05rem; color: #1d4ed8; }
+    .modal-field { margin-bottom: 12px; }
+    .modal-field label { display: block; font-size: .8rem; color: #555; margin-bottom: 4px; }
+    .modal-field input {
+      width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: .9rem;
+    }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
+
+    /* ── Toast ───────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1e293b; color: #fff; padding: 10px 20px;
+      border-radius: 8px; font-size: .9rem; opacity: 0;
+      transition: opacity .3s; pointer-events: none; z-index: 200;
+    }
+    #toast.show { opacity: 1; }
+
+    @media (max-width: 700px) {
+      .item-form-grid { grid-template-columns: 1fr 1fr; }
+      .item-form-grid > :last-child { grid-column: 1/-1; }
+    }
+  </style>
+</head>
+<body>
+<header>🛒 SalesAssist – 소싱/마진 계산기</header>
+
+<div class="container">
+
+  <!-- Config -->
+  <div class="card">
+    <h2>⚙️ 비용 설정</h2>
+    <div class="config-grid" id="configGrid">
+      <div class="config-field">
+        <label>네이버 수수료 (%)</label>
+        <input type="number" id="cfg_naver_commission" step="0.1" min="0" />
+      </div>
+      <div class="config-field">
+        <label>쿠팡 수수료 (%)</label>
+        <input type="number" id="cfg_coupang_commission" step="0.1" min="0" />
+      </div>
+      <div class="config-field">
+        <label>배송비 (원)</label>
+        <input type="number" id="cfg_shipping_cost" step="100" min="0" />
+      </div>
+      <div class="config-field">
+        <label>기타비용 (원)</label>
+        <input type="number" id="cfg_other_cost" step="100" min="0" />
+      </div>
+      <div class="config-field">
+        <label>목표 마진율 (%)</label>
+        <input type="number" id="cfg_target_margin" step="0.5" min="0" />
+      </div>
+    </div>
+    <div class="config-actions">
+      <button class="btn btn-primary" onclick="saveConfig()">저장</button>
+    </div>
+  </div>
+
+  <!-- Add item -->
+  <div class="card">
+    <h2>➕ 상품 추가</h2>
+    <div class="item-form-grid">
+      <div>
+        <label>상품명 *</label>
+        <input type="text" id="f_name" placeholder="상품명" />
+      </div>
+      <div>
+        <label>매입가 (원) *</label>
+        <input type="number" id="f_purchase_price" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label>네이버 판매가 (원)</label>
+        <input type="number" id="f_naver_price" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label>쿠팡 판매가 (원)</label>
+        <input type="number" id="f_coupang_price" placeholder="0" min="0" />
+      </div>
+      <div>
+        <label>메모</label>
+        <input type="text" id="f_memo" placeholder="메모" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn btn-success" onclick="addItem()">추가</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items table -->
+  <div class="card">
+    <h2>📋 상품 목록</h2>
+    <div class="table-wrap">
+      <table id="itemTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>상품명</th>
+            <th>매입가</th>
+            <th>네이버 판매가</th>
+            <th>네이버 마진율</th>
+            <th>쿠팡 판매가</th>
+            <th>쿠팡 마진율</th>
+            <th>메모</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="itemBody"></tbody>
+      </table>
+    </div>
+
+    <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 엑셀</button>
+      <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 엑셀</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>✏️ 상품 수정</h3>
+    <input type="hidden" id="edit_id" />
+    <div class="modal-field"><label>상품명</label><input type="text" id="edit_name" /></div>
+    <div class="modal-field"><label>매입가 (원)</label><input type="number" id="edit_purchase_price" min="0" /></div>
+    <div class="modal-field"><label>네이버 판매가 (원)</label><input type="number" id="edit_naver_price" min="0" /></div>
+    <div class="modal-field"><label>쿠팡 판매가 (원)</label><input type="number" id="edit_coupang_price" min="0" /></div>
+    <div class="modal-field"><label>메모</label><input type="text" id="edit_memo" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  let config = {};
+  let items = [];
+
+  // ── Init ─────────────────────────────────────────────────
+  async function init() {
+    await loadConfig();
+    await loadItems();
+  }
+
+  // ── Config ───────────────────────────────────────────────
+  async function loadConfig() {
+    const res = await fetch('/api/config');
+    config = await res.json();
+    document.getElementById('cfg_naver_commission').value = config.naver_commission;
+    document.getElementById('cfg_coupang_commission').value = config.coupang_commission;
+    document.getElementById('cfg_shipping_cost').value = config.shipping_cost;
+    document.getElementById('cfg_other_cost').value = config.other_cost;
+    document.getElementById('cfg_target_margin').value = config.target_margin;
+  }
+
+  async function saveConfig() {
+    const body = {
+      naver_commission: parseFloat(document.getElementById('cfg_naver_commission').value) || 0,
+      coupang_commission: parseFloat(document.getElementById('cfg_coupang_commission').value) || 0,
+      shipping_cost: parseFloat(document.getElementById('cfg_shipping_cost').value) || 0,
+      other_cost: parseFloat(document.getElementById('cfg_other_cost').value) || 0,
+      target_margin: parseFloat(document.getElementById('cfg_target_margin').value) || 0,
+    };
+    const res = await fetch('/api/config', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      config = await res.json();
+      renderItems();
+      toast('설정이 저장되었습니다.');
+    }
+  }
+
+  // ── Items ────────────────────────────────────────────────
+  async function loadItems() {
+    const res = await fetch('/api/items');
+    items = await res.json();
+    renderItems();
+  }
+
+  function calcMargin(sellPrice, purchasePrice, commissionPct) {
+    if (!sellPrice || sellPrice <= 0) return null;
+    const commission = sellPrice * commissionPct / 100;
+    const profit = sellPrice - purchasePrice - commission - (config.shipping_cost || 0) - (config.other_cost || 0);
+    return (profit / sellPrice * 100).toFixed(1);
+  }
+
+  function marginClass(val) {
+    if (val === null) return '';
+    const v = parseFloat(val);
+    const t = config.target_margin || 20;
+    if (v >= t) return 'margin-good';
+    if (v >= t * 0.5) return 'margin-ok';
+    return 'margin-bad';
+  }
+
+  function fmt(v) { return v != null ? Number(v).toLocaleString() : '-'; }
+
+  function renderItems() {
+    const tbody = document.getElementById('itemBody');
+    tbody.innerHTML = '';
+    if (items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
+      return;
+    }
+    items.forEach((item, idx) => {
+      const nm = calcMargin(item.naver_price, item.purchase_price, config.naver_commission || 0);
+      const cm = calcMargin(item.coupang_price, item.purchase_price, config.coupang_commission || 0);
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td class="name-cell" title="${esc(item.name)}">${esc(item.name)}</td>
+        <td>${fmt(item.purchase_price)}</td>
+        <td>${fmt(item.naver_price)}</td>
+        <td class="${marginClass(nm)}">${nm !== null ? nm + '%' : '-'}</td>
+        <td>${fmt(item.coupang_price)}</td>
+        <td class="${marginClass(cm)}">${cm !== null ? cm + '%' : '-'}</td>
+        <td>${esc(item.memo || '')}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-outline" style="padding:4px 10px;font-size:.8rem" onclick="openEdit(${item.id})">수정</button>
+            <button class="btn btn-danger"  style="padding:4px 10px;font-size:.8rem" onclick="deleteItem(${item.id})">삭제</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function addItem() {
+    const name = document.getElementById('f_name').value.trim();
+    const purchase_price = parseFloat(document.getElementById('f_purchase_price').value);
+    if (!name || isNaN(purchase_price)) { toast('상품명과 매입가는 필수입니다.', true); return; }
+    const body = {
+      name,
+      purchase_price,
+      naver_price: parseFloat(document.getElementById('f_naver_price').value) || null,
+      coupang_price: parseFloat(document.getElementById('f_coupang_price').value) || null,
+      memo: document.getElementById('f_memo').value.trim(),
+    };
+    const res = await fetch('/api/items', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      ['f_name','f_purchase_price','f_naver_price','f_coupang_price','f_memo'].forEach(id => document.getElementById(id).value = '');
+      await loadItems();
+      toast('상품이 추가되었습니다.');
+    }
+  }
+
+  async function deleteItem(id) {
+    if (!confirm('삭제하시겠습니까?')) return;
+    await fetch(`/api/items/${id}`, { method: 'DELETE' });
+    await loadItems();
+    toast('삭제되었습니다.');
+  }
+
+  // ── Edit modal ───────────────────────────────────────────
+  function openEdit(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('edit_id').value = item.id;
+    document.getElementById('edit_name').value = item.name;
+    document.getElementById('edit_purchase_price').value = item.purchase_price;
+    document.getElementById('edit_naver_price').value = item.naver_price || '';
+    document.getElementById('edit_coupang_price').value = item.coupang_price || '';
+    document.getElementById('edit_memo').value = item.memo || '';
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+
+  async function saveEdit() {
+    const id = parseInt(document.getElementById('edit_id').value);
+    const body = {
+      name: document.getElementById('edit_name').value.trim(),
+      purchase_price: parseFloat(document.getElementById('edit_purchase_price').value) || 0,
+      naver_price: parseFloat(document.getElementById('edit_naver_price').value) || null,
+      coupang_price: parseFloat(document.getElementById('edit_coupang_price').value) || null,
+      memo: document.getElementById('edit_memo').value.trim(),
+    };
+    const res = await fetch(`/api/items/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      closeModal();
+      await loadItems();
+      toast('수정되었습니다.');
+    }
+  }
+
+  // ── Export ───────────────────────────────────────────────
+  function exportExcel(platform) {
+    window.location.href = `/api/export/${platform}`;
+  }
+
+  // ── Helpers ──────────────────────────────────────────────
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  let toastTimer;
+  function toast(msg, isError = false) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.background = isError ? '#991b1b' : '#1e293b';
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+  }
+
+  document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  init();
+</script>
+</body>
+</html>
