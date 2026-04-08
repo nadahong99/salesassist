@@ -1,0 +1,7 @@
+{
+  "naver_commission": 3.5,
+  "coupang_commission": 5.0,
+  "shipping_cost": 3000,
+  "other_cost": 0,
+  "target_margin": 20.0
+}
