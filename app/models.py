@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class Config(BaseModel):
@@ -19,6 +19,15 @@ class ItemCreate(BaseModel):
     source: Optional[str] = Field(default="", description="소싱처")
     url: Optional[str] = Field(default="", description="소싱 URL")
     memo: Optional[str] = Field(default="", description="메모")
+
+    @field_validator("url")
+    @classmethod
+    def validate_url(cls, v: Optional[str]) -> Optional[str]:
+        if not v:
+            return v
+        if v.startswith("http://") or v.startswith("https://"):
+            return v
+        raise ValueError("소싱 URL은 http:// 또는 https://로 시작해야 합니다.")
 
 
 class Item(ItemCreate):
