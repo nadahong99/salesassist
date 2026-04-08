@@ -23,3 +23,17 @@ class ItemCreate(BaseModel):
 
 class Item(ItemCreate):
     id: int
+
+
+class ReceiptCreate(BaseModel):
+    date: str = Field(..., description="날짜 (YYYY-MM-DD)")
+    vendor: str = Field(..., description="거래처/상호")
+    description: str = Field(default="", description="품목/내용")
+    amount: float = Field(..., ge=0, description="공급가액 (원, 세전)")
+    tax_amount: float = Field(default=0.0, ge=0, description="부가세 (원)")
+    receipt_type: str = Field(default="매입", description="유형: 매입/매출/기타")
+    memo: Optional[str] = Field(default="", description="메모")
+
+
+class Receipt(ReceiptCreate):
+    id: int

@@ -7,6 +7,7 @@ DATA_DIR.mkdir(exist_ok=True)
 
 ITEMS_FILE = DATA_DIR / "items.json"
 CONFIG_FILE = DATA_DIR / "config.json"
+RECEIPTS_FILE = DATA_DIR / "receipts.json"
 
 _DEFAULT_CONFIG = {
     "naver_commission": 3.5,
@@ -51,3 +52,11 @@ def next_id(items: list) -> int:
     if not items:
         return 1
     return max(it["id"] for it in items) + 1
+
+
+def load_receipts() -> list:
+    return _read(RECEIPTS_FILE, [])
+
+
+def save_receipts(receipts: list) -> None:
+    _write(RECEIPTS_FILE, receipts)
