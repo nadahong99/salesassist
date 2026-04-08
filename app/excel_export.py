@@ -78,7 +78,7 @@ def _save_excel(df: pd.DataFrame, filename: str, target_margin: float) -> str:
                 margin_cell.fill = red_fill
 
         for col in ws.columns:
-            max_len = max(len(str(cell.value or "")) for cell in col)
+            max_len = max((len(str(cell.value or "")) for cell in col), default=0)
             ws.column_dimensions[col[0].column_letter].width = max(12, max_len + 2)
 
     return str(path)
@@ -94,3 +94,63 @@ def export_coupang(items: list, config: dict) -> str:
     df = _build_df(items, config, "coupang")
     ts = datetime.now().strftime("%Y%m%d_%H%M%S")
     return _save_excel(df, f"coupang_{ts}.xlsx", config.get("target_margin", 20))
+
+
+def export_receipts(receipts: list) -> str:
+    """영수증/세금계산서 목록을 엑셀로 내보내기."""
+    rows = []
+    for r in receipts:
+        amount = r.get("amount", 0)
+        tax_amount = r.get("tax_amount", 0)
+        rows.append({
+            "날짜": r.get("date", ""),
+            "유형": r.get("receipt_type", "매입"),
+            "거래처/상호": r.get("vendor", ""),
+            "품목/내용": r.get("description", ""),
+            "공급가액(원)": amount,
+            "부가세(원)": tax_amount,
+            "합계(원)": round(amount + tax_amount, 0),
+            "메모": r.get("memo", ""),
+        })
+    df = pd.DataFrame(rows)
+
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S")
+    path = OUTPUT_DIR / f"receipts_{ts}.xlsx"
+    with pd.ExcelWriter(str(path), engine="openpyxl") as writer:
+        df.to_excel(writer, index=False, sheet_name="영수증목록")
+        ws = writer.sheets["영수증목록"]
+        from openpyxl.styles import Font, PatternFill
+        header_font = Font(bold=True)
+        buy_fill = PatternFill("solid", fgColor="DBEAFE")
+        sell_fill = PatternFill("solid", fgColor="DCFCE7")
+        other_fill = PatternFill("solid", fgColor="FEF9C3")
+
+        for col_cell in ws[1]:
+            col_cell.font = header_font
+
+        type_col_idx = df.columns.get_loc("유형")
+        for row in ws.iter_rows(min_row=2, max_row=ws.max_row):
+            rtype = str(row[type_col_idx].value or "")
+            fill = buy_fill if rtype == "매입" else sell_fill if rtype == "매출" else other_fill
+            for cell in row:
+                cell.fill = fill
+
+        for col in ws.columns:
+            max_len = max((len(str(cell.value or "")) for cell in col), default=0)
+            ws.column_dimensions[col[0].column_letter].width = max(12, max_len + 2)
+
+        # Add summary rows at the bottom
+        if rows:
+            last_row = ws.max_row + 2
+            ws.cell(row=last_row, column=1, value="합계").font = Font(bold=True)
+            supply_col = df.columns.get_loc("공급가액(원)") + 1
+            tax_col = df.columns.get_loc("부가세(원)") + 1
+            total_col = df.columns.get_loc("합계(원)") + 1
+            ws.cell(row=last_row, column=supply_col,
+                    value=sum(r.get("amount", 0) for r in receipts)).font = Font(bold=True)
+            ws.cell(row=last_row, column=tax_col,
+                    value=sum(r.get("tax_amount", 0) for r in receipts)).font = Font(bold=True)
+            ws.cell(row=last_row, column=total_col,
+                    value=sum(r.get("amount", 0) + r.get("tax_amount", 0) for r in receipts)).font = Font(bold=True)
+
+    return str(path)

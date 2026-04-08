@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SalesAssist – 소싱/마진 계산기</title>
+  <title>SalesAssist – 소싱/마진/세금 관리</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -21,7 +21,36 @@
       font-size: 1.2rem;
       font-weight: 700;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+
+    /* ── Tabs ─────────────────────────────────────────────── */
+    .tabs {
+      background: #1d4ed8;
+      display: flex;
+      gap: 0;
+      padding: 0 20px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 11px 22px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,.75);
+      font-size: .92rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+      transition: color .15s, border-color .15s;
+    }
+    .tab-btn:hover { color: #fff; }
+    .tab-btn.active { color: #fff; border-bottom-color: #fff; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
 
     .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
 
@@ -58,6 +87,7 @@
     .btn-success { background: #16a34a; color: #fff; }
     .btn-danger  { background: #dc2626; color: #fff; }
     .btn-outline { background: #fff; color: #2563eb; border: 1.5px solid #2563eb; }
+    .btn-sm { padding: 4px 10px; font-size: .8rem; }
 
     .config-actions { margin-top: 14px; display: flex; gap: 10px; }
 
@@ -107,7 +137,7 @@
     .modal h3 { margin-bottom: 16px; font-size: 1.05rem; color: #1d4ed8; }
     .modal-field { margin-bottom: 12px; }
     .modal-field label { display: block; font-size: .8rem; color: #555; margin-bottom: 4px; }
-    .modal-field input {
+    .modal-field input, .modal-field select {
       width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
       border-radius: 6px; font-size: .9rem;
     }
@@ -133,6 +163,12 @@
     .calc-result span { font-weight: 700; }
 
     /* ── Trend links ─────────────────────────────────────── */
+    .link-section-title {
+      font-size: .82rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: .06em;
+      margin: 16px 0 8px;
+    }
+    .link-section-title:first-child { margin-top: 0; }
     .link-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -150,6 +186,34 @@
     .link-item .icon { font-size: 1.2rem; flex-shrink: 0; }
     .link-desc { font-size: .75rem; color: #64748b; margin-top: 2px; }
 
+    /* ── Receipt section ─────────────────────────────────── */
+    .receipt-form-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr 1fr 120px 120px 120px auto;
+      gap: 10px;
+      align-items: end;
+    }
+    .receipt-form-grid label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
+    .receipt-form-grid input,
+    .receipt-form-grid select {
+      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: .9rem;
+    }
+    .receipt-form-grid input:focus,
+    .receipt-form-grid select:focus { outline: 2px solid #2563eb; border-color: transparent; }
+
+    .receipt-summary {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      padding: 12px 16px; background: #f0f9ff; border-radius: 8px;
+      margin-bottom: 16px; font-size: .9rem;
+    }
+    .receipt-summary-item { display: flex; flex-direction: column; align-items: center; }
+    .receipt-summary-item .label { font-size: .72rem; color: #6b7280; margin-bottom: 3px; }
+    .receipt-summary-item .value { font-weight: 700; color: #1d4ed8; font-size: 1rem; }
+    .receipt-type-buy  { background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: .78rem; font-weight: 600; }
+    .receipt-type-sell { background: #dcfce7; color: #15803d; padding: 2px 8px; border-radius: 4px; font-size: .78rem; font-weight: 600; }
+    .receipt-type-etc  { background: #fef9c3; color: #854d0e; padding: 2px 8px; border-radius: 4px; font-size: .78rem; font-weight: 600; }
+
     /* ── Toast ───────────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 24px; right: 24px;
@@ -159,9 +223,11 @@
     }
     #toast.show { opacity: 1; }
 
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       .item-form-grid { grid-template-columns: 1fr 1fr; }
       .item-form-grid > :last-child { grid-column: 1/-1; }
+      .receipt-form-grid { grid-template-columns: 1fr 1fr; }
+      .receipt-form-grid > :last-child { grid-column: 1/-1; }
       .link-grid { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 500px) {
@@ -170,14 +236,24 @@
   </style>
 </head>
 <body>
-<header>🛒 SalesAssist – 소싱/마진 계산기</header>
+<header>🛒 SalesAssist – 소싱 / 마진 / 세금 관리</header>
 
+<nav class="tabs">
+  <button class="tab-btn active" onclick="switchTab('tab-margin', this)">📊 마진 계산</button>
+  <button class="tab-btn" onclick="switchTab('tab-receipt', this)">🧾 세금/영수증</button>
+  <button class="tab-btn" onclick="switchTab('tab-sourcing', this)">🔗 소싱·키워드 바로가기</button>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 1: 마진 계산
+════════════════════════════════════════════════════════════ -->
+<div id="tab-margin" class="tab-panel active">
 <div class="container">
 
   <!-- Config -->
   <div class="card">
     <h2>⚙️ 비용 설정</h2>
-    <div class="config-grid" id="configGrid">
+    <div class="config-grid">
       <div class="config-field">
         <label>네이버 수수료 (%)</label>
         <input type="number" id="cfg_naver_commission" step="0.1" min="0" />
@@ -229,69 +305,6 @@
       </div>
     </div>
     <div class="calc-result" id="calcResult"></div>
-  </div>
-
-  <!-- Keyword / trend links -->
-  <div class="card">
-    <h2>🔗 키워드·트렌드 바로가기</h2>
-    <div class="link-grid">
-      <a class="link-item" href="https://datalab.naver.com/shoppingInsight/sCategory.naver" target="_blank" rel="noopener noreferrer">
-        <span class="icon">📊</span>
-        <div>
-          <div>네이버 쇼핑 인사이트</div>
-          <div class="link-desc">카테고리·키워드 트렌드 분석</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://datalab.naver.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">📈</span>
-        <div>
-          <div>네이버 데이터랩</div>
-          <div class="link-desc">검색어 트렌드·연령별 분석</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://sell.smartstore.naver.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🏪</span>
-        <div>
-          <div>네이버 스마트스토어</div>
-          <div class="link-desc">판매자 센터 (상품 등록·관리)</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://wing.coupang.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🛍️</span>
-        <div>
-          <div>쿠팡 Wing</div>
-          <div class="link-desc">쿠팡 입점 관리·수수료 확인</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://www.aliexpress.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🌏</span>
-        <div>
-          <div>알리익스프레스</div>
-          <div class="link-desc">해외 소싱 (빠른 배송)</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://www.alibaba.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🏭</span>
-        <div>
-          <div>알리바바</div>
-          <div class="link-desc">해외 도매 소싱</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://www.taobao.com" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🛒</span>
-        <div>
-          <div>타오바오</div>
-          <div class="link-desc">중국 소싱 플랫폼</div>
-        </div>
-      </a>
-      <a class="link-item" href="https://trends.google.com/trends/?geo=KR" target="_blank" rel="noopener noreferrer">
-        <span class="icon">🔍</span>
-        <div>
-          <div>Google 트렌드 (KR)</div>
-          <div class="link-desc">국내 검색 관심도 분석</div>
-        </div>
-      </a>
-    </div>
   </div>
 
   <!-- Add item -->
@@ -355,15 +368,252 @@
         <tbody id="itemBody"></tbody>
       </table>
     </div>
-
     <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 엑셀</button>
       <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 엑셀</button>
     </div>
   </div>
-</div>
 
-<!-- Edit modal -->
+</div>
+</div><!-- /tab-margin -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2: 세금/영수증 관리
+════════════════════════════════════════════════════════════ -->
+<div id="tab-receipt" class="tab-panel">
+<div class="container">
+
+  <!-- Summary -->
+  <div class="card">
+    <h2>📑 세금/영수증 현황 요약</h2>
+    <div class="receipt-summary" id="receiptSummary">
+      <div class="receipt-summary-item"><span class="label">매입 합계(공급가액)</span><span class="value" id="sum_buy_supply">-</span></div>
+      <div class="receipt-summary-item"><span class="label">매입 부가세</span><span class="value" id="sum_buy_tax">-</span></div>
+      <div class="receipt-summary-item"><span class="label">매입 합계(VAT포함)</span><span class="value" id="sum_buy_total">-</span></div>
+      <div style="width:1px;background:#e2e8f0;margin:0 4px;"></div>
+      <div class="receipt-summary-item"><span class="label">매출 합계(공급가액)</span><span class="value" id="sum_sell_supply">-</span></div>
+      <div class="receipt-summary-item"><span class="label">매출 부가세</span><span class="value" id="sum_sell_tax">-</span></div>
+      <div class="receipt-summary-item"><span class="label">매출 합계(VAT포함)</span><span class="value" id="sum_sell_total">-</span></div>
+      <div style="width:1px;background:#e2e8f0;margin:0 4px;"></div>
+      <div class="receipt-summary-item"><span class="label">납부 예상 부가세</span><span class="value" id="sum_vat_due" style="color:#dc2626;">-</span></div>
+    </div>
+  </div>
+
+  <!-- Auto-calc helper -->
+  <div class="card">
+    <h2>🔢 부가세 자동 계산기</h2>
+    <div class="calc-grid">
+      <div class="calc-field">
+        <label>공급가액 (원)</label>
+        <input type="number" id="vat_supply" placeholder="100000" min="0" oninput="calcVat()" />
+      </div>
+      <div class="calc-field">
+        <label>부가세율 (%)</label>
+        <input type="number" id="vat_rate" placeholder="10" value="10" min="0" max="100" oninput="calcVat()" />
+      </div>
+    </div>
+    <div class="calc-result" id="vatResult"></div>
+  </div>
+
+  <!-- Add receipt -->
+  <div class="card">
+    <h2>➕ 영수증 / 세금계산서 추가</h2>
+    <div class="receipt-form-grid">
+      <div>
+        <label>날짜 *</label>
+        <input type="date" id="r_date" />
+      </div>
+      <div>
+        <label>거래처/상호 *</label>
+        <input type="text" id="r_vendor" placeholder="예: 알리익스프레스" />
+      </div>
+      <div>
+        <label>품목/내용</label>
+        <input type="text" id="r_description" placeholder="예: 무선이어폰 100개" />
+      </div>
+      <div>
+        <label>공급가액 (원) *</label>
+        <input type="number" id="r_amount" placeholder="0" min="0" oninput="autoTax()" />
+      </div>
+      <div>
+        <label>부가세 (원)</label>
+        <input type="number" id="r_tax_amount" placeholder="자동계산" min="0" />
+      </div>
+      <div>
+        <label>유형</label>
+        <select id="r_type">
+          <option value="매입">매입</option>
+          <option value="매출">매출</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <button class="btn btn-success" onclick="addReceipt()">추가</button>
+      </div>
+    </div>
+    <div style="margin-top:10px;">
+      <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">메모</label>
+      <input type="text" id="r_memo" placeholder="메모" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+    </div>
+  </div>
+
+  <!-- Receipts table -->
+  <div class="card">
+    <h2>🗂 영수증 목록</h2>
+    <div style="margin-bottom:10px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <label style="font-size:.82rem;color:#555;">필터:</label>
+      <select id="r_filter" onchange="renderReceipts()" style="padding:6px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.85rem;">
+        <option value="">전체</option>
+        <option value="매입">매입만</option>
+        <option value="매출">매출만</option>
+        <option value="기타">기타만</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>날짜</th>
+            <th>유형</th>
+            <th>거래처/상호</th>
+            <th>품목/내용</th>
+            <th>공급가액</th>
+            <th>부가세</th>
+            <th>합계</th>
+            <th>메모</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="receiptBody"></tbody>
+      </table>
+    </div>
+    <div style="margin-top:16px;">
+      <button class="btn btn-outline" onclick="exportExcel('receipts')">📥 영수증 엑셀 내보내기</button>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-receipt -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 3: 소싱·키워드 바로가기
+════════════════════════════════════════════════════════════ -->
+<div id="tab-sourcing" class="tab-panel">
+<div class="container">
+
+  <div class="card">
+    <h2>📊 키워드·트렌드 분석</h2>
+    <div class="link-section-title">네이버</div>
+    <div class="link-grid">
+      <a class="link-item" href="https://datalab.naver.com/shoppingInsight/sCategory.naver" target="_blank" rel="noopener noreferrer">
+        <span class="icon">📊</span>
+        <div><div>네이버 쇼핑 인사이트</div><div class="link-desc">카테고리·키워드 트렌드 분석</div></div>
+      </a>
+      <a class="link-item" href="https://datalab.naver.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">📈</span>
+        <div><div>네이버 데이터랩</div><div class="link-desc">검색어 트렌드·연령별 분석</div></div>
+      </a>
+      <a class="link-item" href="https://searchad.naver.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔑</span>
+        <div><div>네이버 키워드 도구</div><div class="link-desc">검색량·경쟁도 조회 (광고센터)</div></div>
+      </a>
+      <a class="link-item" href="https://whereispost.com/keyword" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔍</span>
+        <div><div>네이버 키워드 분석 (무료)</div><div class="link-desc">검색량·연관 키워드 빠른 조회</div></div>
+      </a>
+    </div>
+
+    <div class="link-section-title">판매 채널</div>
+    <div class="link-grid">
+      <a class="link-item" href="https://sell.smartstore.naver.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🏪</span>
+        <div><div>네이버 스마트스토어</div><div class="link-desc">판매자 센터 (상품 등록·관리)</div></div>
+      </a>
+      <a class="link-item" href="https://wing.coupang.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🛍️</span>
+        <div><div>쿠팡 Wing</div><div class="link-desc">쿠팡 입점 관리·수수료 확인</div></div>
+      </a>
+      <a class="link-item" href="https://www.gmarket.co.kr" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🟡</span>
+        <div><div>G마켓</div><div class="link-desc">G마켓 판매자 센터</div></div>
+      </a>
+      <a class="link-item" href="https://www.auction.co.kr" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🟠</span>
+        <div><div>옥션</div><div class="link-desc">옥션 판매자 센터</div></div>
+      </a>
+    </div>
+
+    <div class="link-section-title">해외 소싱</div>
+    <div class="link-grid">
+      <a class="link-item" href="https://www.aliexpress.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🌏</span>
+        <div><div>알리익스프레스</div><div class="link-desc">해외 소싱 (빠른 배송)</div></div>
+      </a>
+      <a class="link-item" href="https://www.alibaba.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🏭</span>
+        <div><div>알리바바</div><div class="link-desc">해외 도매 소싱</div></div>
+      </a>
+      <a class="link-item" href="https://www.taobao.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🛒</span>
+        <div><div>타오바오</div><div class="link-desc">중국 소싱 플랫폼</div></div>
+      </a>
+      <a class="link-item" href="https://global.1688.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔧</span>
+        <div><div>1688 (中 도매)</div><div class="link-desc">알리바바 국내 도매 플랫폼</div></div>
+      </a>
+      <a class="link-item" href="https://www.temu.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">💰</span>
+        <div><div>Temu</div><div class="link-desc">저가 해외 소싱</div></div>
+      </a>
+    </div>
+
+    <div class="link-section-title">국내 도매·소싱</div>
+    <div class="link-grid">
+      <a class="link-item" href="https://www.오너클랜.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🇰🇷</span>
+        <div><div>오너클랜</div><div class="link-desc">국내 도매·위탁 소싱</div></div>
+      </a>
+      <a class="link-item" href="https://www.도매꾹.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">📦</span>
+        <div><div>도매꾹</div><div class="link-desc">국내 도매 소싱 플랫폼</div></div>
+      </a>
+      <a class="link-item" href="https://www.도매토피아.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🏬</span>
+        <div><div>도매토피아</div><div class="link-desc">국내 도매·위탁 플랫폼</div></div>
+      </a>
+      <a class="link-item" href="https://www.thegreen.co.kr" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🌿</span>
+        <div><div>더그린</div><div class="link-desc">국내 도매 소싱</div></div>
+      </a>
+    </div>
+
+    <div class="link-section-title">트렌드·시장 조사</div>
+    <div class="link-grid">
+      <a class="link-item" href="https://trends.google.com/trends/?geo=KR" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔍</span>
+        <div><div>Google 트렌드 (KR)</div><div class="link-desc">국내 검색 관심도 분석</div></div>
+      </a>
+      <a class="link-item" href="https://www.mtrending.co.kr" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🔥</span>
+        <div><div>트렌딩</div><div class="link-desc">국내 쇼핑 트렌드 분석</div></div>
+      </a>
+      <a class="link-item" href="https://ranking.naver.com/ranking/top100" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🏆</span>
+        <div><div>네이버 쇼핑 랭킹 TOP100</div><div class="link-desc">실시간 인기 상품 순위</div></div>
+      </a>
+      <a class="link-item" href="https://best.aliexpress.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">⭐</span>
+        <div><div>알리익스프레스 Best</div><div class="link-desc">인기 상품 카테고리별 순위</div></div>
+      </a>
+    </div>
+  </div>
+
+</div>
+</div><!-- /tab-sourcing -->
+
+<!-- Edit item modal -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ 상품 수정</h3>
@@ -376,8 +626,34 @@
     <div class="modal-field"><label>소싱 URL</label><input type="url" id="edit_url" /></div>
     <div class="modal-field"><label>메모</label><input type="text" id="edit_memo" /></div>
     <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">취소</button>
+      <button class="btn btn-outline" onclick="closeModal('editModal')">취소</button>
       <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit receipt modal -->
+<div class="modal-overlay" id="editReceiptModal">
+  <div class="modal">
+    <h3>✏️ 영수증 수정</h3>
+    <input type="hidden" id="er_id" />
+    <div class="modal-field"><label>날짜</label><input type="date" id="er_date" /></div>
+    <div class="modal-field"><label>거래처/상호</label><input type="text" id="er_vendor" /></div>
+    <div class="modal-field"><label>품목/내용</label><input type="text" id="er_description" /></div>
+    <div class="modal-field"><label>공급가액 (원)</label><input type="number" id="er_amount" min="0" /></div>
+    <div class="modal-field"><label>부가세 (원)</label><input type="number" id="er_tax_amount" min="0" /></div>
+    <div class="modal-field">
+      <label>유형</label>
+      <select id="er_type">
+        <option value="매입">매입</option>
+        <option value="매출">매출</option>
+        <option value="기타">기타</option>
+      </select>
+    </div>
+    <div class="modal-field"><label>메모</label><input type="text" id="er_memo" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('editReceiptModal')">취소</button>
+      <button class="btn btn-primary" onclick="saveReceiptEdit()">저장</button>
     </div>
   </div>
 </div>
@@ -387,11 +663,23 @@
 <script>
   let config = {};
   let items = [];
+  let receipts = [];
+
+  // ── Tabs ──────────────────────────────────────────────────
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
+    // Set today's date as default for receipt form
+    document.getElementById('r_date').value = new Date().toISOString().slice(0,10);
     await loadConfig();
     await loadItems();
+    await loadReceipts();
   }
 
   // ── Config ───────────────────────────────────────────────
@@ -453,6 +741,25 @@
     el.classList.add('show');
   }
 
+  // ── VAT calculator ────────────────────────────────────────
+  function calcVat() {
+    const supply = parseFloat(document.getElementById('vat_supply').value) || 0;
+    const rate = parseFloat(document.getElementById('vat_rate').value) || 10;
+    const el = document.getElementById('vatResult');
+    if (!supply) { el.classList.remove('show'); return; }
+    const tax = Math.round(supply * rate / 100);
+    const total = supply + tax;
+    el.innerHTML = `공급가액 <span>${supply.toLocaleString()}원</span> + 부가세(${rate}%) <span>${tax.toLocaleString()}원</span> = 합계 <span style="color:#1d4ed8">${total.toLocaleString()}원</span>`;
+    el.classList.add('show');
+  }
+
+  // ── Auto-fill tax from supply amount ─────────────────────
+  function autoTax() {
+    const supply = parseFloat(document.getElementById('r_amount').value) || 0;
+    const taxRate = parseFloat(document.getElementById('cfg_tax_rate').value) || 10;
+    document.getElementById('r_tax_amount').value = Math.round(supply * taxRate / 100) || '';
+  }
+
   // ── Items ────────────────────────────────────────────────
   async function loadItems() {
     const res = await fetch('/api/items');
@@ -505,8 +812,8 @@
         <td>${esc(item.memo || '')}</td>
         <td>
           <div class="action-btns">
-            <button class="btn btn-outline" style="padding:4px 10px;font-size:.8rem" onclick="openEdit(${item.id})">수정</button>
-            <button class="btn btn-danger"  style="padding:4px 10px;font-size:.8rem" onclick="deleteItem(${item.id})">삭제</button>
+            <button class="btn btn-outline btn-sm" onclick="openEdit(${item.id})">수정</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteItem(${item.id})">삭제</button>
           </div>
         </td>`;
       tbody.appendChild(tr);
@@ -541,7 +848,7 @@
     toast('삭제되었습니다.');
   }
 
-  // ── Edit modal ───────────────────────────────────────────
+  // ── Edit item modal ───────────────────────────────────────
   function openEdit(id) {
     const item = items.find(i => i.id === id);
     if (!item) return;
@@ -556,8 +863,6 @@
     document.getElementById('editModal').classList.add('open');
   }
 
-  function closeModal() { document.getElementById('editModal').classList.remove('open'); }
-
   async function saveEdit() {
     const id = parseInt(document.getElementById('edit_id').value);
     const body = {
@@ -571,16 +876,150 @@
     };
     const res = await fetch(`/api/items/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
     if (res.ok) {
-      closeModal();
+      closeModal('editModal');
       await loadItems();
       toast('수정되었습니다.');
     }
+  }
+
+  // ── Receipts ─────────────────────────────────────────────
+  async function loadReceipts() {
+    const res = await fetch('/api/receipts');
+    receipts = await res.json();
+    renderReceipts();
+    renderReceiptSummary();
+  }
+
+  async function addReceipt() {
+    const date = document.getElementById('r_date').value;
+    const vendor = document.getElementById('r_vendor').value.trim();
+    const amount = parseFloat(document.getElementById('r_amount').value);
+    if (!date || !vendor || isNaN(amount)) { toast('날짜, 거래처, 공급가액은 필수입니다.', true); return; }
+    const body = {
+      date,
+      vendor,
+      description: document.getElementById('r_description').value.trim(),
+      amount,
+      tax_amount: parseFloat(document.getElementById('r_tax_amount').value) || 0,
+      receipt_type: document.getElementById('r_type').value,
+      memo: document.getElementById('r_memo').value.trim(),
+    };
+    const res = await fetch('/api/receipts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      ['r_vendor','r_description','r_amount','r_tax_amount','r_memo'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('r_date').value = new Date().toISOString().slice(0,10);
+      await loadReceipts();
+      toast('영수증이 추가되었습니다.');
+    }
+  }
+
+  async function deleteReceipt(id) {
+    if (!confirm('삭제하시겠습니까?')) return;
+    await fetch(`/api/receipts/${id}`, { method: 'DELETE' });
+    await loadReceipts();
+    toast('삭제되었습니다.');
+  }
+
+  function openReceiptEdit(id) {
+    const r = receipts.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('er_id').value = r.id;
+    document.getElementById('er_date').value = r.date;
+    document.getElementById('er_vendor').value = r.vendor;
+    document.getElementById('er_description').value = r.description || '';
+    document.getElementById('er_amount').value = r.amount;
+    document.getElementById('er_tax_amount').value = r.tax_amount || 0;
+    document.getElementById('er_type').value = r.receipt_type || '매입';
+    document.getElementById('er_memo').value = r.memo || '';
+    document.getElementById('editReceiptModal').classList.add('open');
+  }
+
+  async function saveReceiptEdit() {
+    const id = parseInt(document.getElementById('er_id').value);
+    const body = {
+      date: document.getElementById('er_date').value,
+      vendor: document.getElementById('er_vendor').value.trim(),
+      description: document.getElementById('er_description').value.trim(),
+      amount: parseFloat(document.getElementById('er_amount').value) || 0,
+      tax_amount: parseFloat(document.getElementById('er_tax_amount').value) || 0,
+      receipt_type: document.getElementById('er_type').value,
+      memo: document.getElementById('er_memo').value.trim(),
+    };
+    const res = await fetch(`/api/receipts/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      closeModal('editReceiptModal');
+      await loadReceipts();
+      toast('수정되었습니다.');
+    }
+  }
+
+  function renderReceipts() {
+    const filter = document.getElementById('r_filter').value;
+    const tbody = document.getElementById('receiptBody');
+    tbody.innerHTML = '';
+    const filtered = filter ? receipts.filter(r => r.receipt_type === filter) : receipts;
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="10" style="color:#9ca3af;padding:24px">등록된 영수증이 없습니다.</td></tr>';
+      return;
+    }
+    filtered.forEach((r, idx) => {
+      const total = (r.amount || 0) + (r.tax_amount || 0);
+      const typeCls = r.receipt_type === '매입' ? 'receipt-type-buy' : r.receipt_type === '매출' ? 'receipt-type-sell' : 'receipt-type-etc';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td>${esc(r.date)}</td>
+        <td><span class="${typeCls}">${esc(r.receipt_type || '매입')}</span></td>
+        <td class="name-cell" title="${esc(r.vendor)}">${esc(r.vendor)}</td>
+        <td class="source-cell" title="${esc(r.description || '')}">${esc(r.description || '')}</td>
+        <td>${fmt(r.amount)}</td>
+        <td>${fmt(r.tax_amount)}</td>
+        <td style="font-weight:600">${fmt(total)}</td>
+        <td>${esc(r.memo || '')}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-outline btn-sm" onclick="openReceiptEdit(${r.id})">수정</button>
+            <button class="btn btn-danger btn-sm"  onclick="deleteReceipt(${r.id})">삭제</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function renderReceiptSummary() {
+    const buy = receipts.filter(r => r.receipt_type === '매입');
+    const sell = receipts.filter(r => r.receipt_type === '매출');
+    const sumSupply = arr => arr.reduce((s, r) => s + (r.amount || 0), 0);
+    const sumTax = arr => arr.reduce((s, r) => s + (r.tax_amount || 0), 0);
+
+    const buySupply = sumSupply(buy), buyTax = sumTax(buy);
+    const sellSupply = sumSupply(sell), sellTax = sumTax(sell);
+    const vatDue = sellTax - buyTax;
+
+    document.getElementById('sum_buy_supply').textContent = buySupply.toLocaleString() + '원';
+    document.getElementById('sum_buy_tax').textContent = buyTax.toLocaleString() + '원';
+    document.getElementById('sum_buy_total').textContent = (buySupply + buyTax).toLocaleString() + '원';
+    document.getElementById('sum_sell_supply').textContent = sellSupply.toLocaleString() + '원';
+    document.getElementById('sum_sell_tax').textContent = sellTax.toLocaleString() + '원';
+    document.getElementById('sum_sell_total').textContent = (sellSupply + sellTax).toLocaleString() + '원';
+    document.getElementById('sum_vat_due').textContent = vatDue.toLocaleString() + '원';
   }
 
   // ── Export ───────────────────────────────────────────────
   function exportExcel(platform) {
     window.location.href = `/api/export/${platform}`;
   }
+
+  // ── Modal helpers ─────────────────────────────────────────
+  function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('open');
+  }
+
+  document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    overlay.addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+  });
 
   // ── Helpers ──────────────────────────────────────────────
   function esc(s) {
@@ -596,10 +1035,6 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
   }
-
-  document.getElementById('editModal').addEventListener('click', function(e) {
-    if (e.target === this) closeModal();
-  });
 
   init();
 </script>

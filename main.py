@@ -3,9 +3,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-from app.models import Item, ItemCreate, Config
-from app.storage import load_items, save_items, load_config, save_config, next_id
-from app.excel_export import export_naver, export_coupang
+from app.models import Item, ItemCreate, Config, Receipt, ReceiptCreate
+from app.storage import (
+    load_items, save_items, load_config, save_config, next_id,
+    load_receipts, save_receipts,
+)
+from app.excel_export import export_naver, export_coupang, export_receipts
 
 app = FastAPI(title="SalesAssist")
 
@@ -67,6 +70,41 @@ def delete_item(item_id: int):
     save_items(new_items)
 
 
+# ── Receipts API ──────────────────────────────────────────────────────────────
+@app.get("/api/receipts")
+def get_receipts():
+    return load_receipts()
+
+
+@app.post("/api/receipts", status_code=201)
+def create_receipt(receipt: ReceiptCreate):
+    receipts = load_receipts()
+    new_receipt = {"id": next_id(receipts), **receipt.model_dump()}
+    receipts.append(new_receipt)
+    save_receipts(receipts)
+    return new_receipt
+
+
+@app.put("/api/receipts/{receipt_id}")
+def update_receipt(receipt_id: int, receipt: ReceiptCreate):
+    receipts = load_receipts()
+    for i, existing in enumerate(receipts):
+        if existing["id"] == receipt_id:
+            receipts[i] = {"id": receipt_id, **receipt.model_dump()}
+            save_receipts(receipts)
+            return receipts[i]
+    raise HTTPException(status_code=404, detail="Receipt not found")
+
+
+@app.delete("/api/receipts/{receipt_id}", status_code=204)
+def delete_receipt(receipt_id: int):
+    receipts = load_receipts()
+    new_receipts = [r for r in receipts if r["id"] != receipt_id]
+    if len(new_receipts) == len(receipts):
+        raise HTTPException(status_code=404, detail="Receipt not found")
+    save_receipts(new_receipts)
+
+
 # ── Export API ────────────────────────────────────────────────────────────────
 @app.get("/api/export/naver")
 def export_naver_route():
@@ -78,6 +116,13 @@ def export_naver_route():
 @app.get("/api/export/coupang")
 def export_coupang_route():
     path = export_coupang(load_items(), load_config())
+    return FileResponse(path, filename=Path(path).name,
+                        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+@app.get("/api/export/receipts")
+def export_receipts_route():
+    path = export_receipts(load_receipts())
     return FileResponse(path, filename=Path(path).name,
                         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
