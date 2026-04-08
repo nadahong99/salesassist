@@ -686,7 +686,10 @@
   // ── Init ─────────────────────────────────────────────────
   async function init() {
     await loadConfig();
-    await Promise.all([loadItems(), loadOrders()]);
+    // loadConfig must complete first so config is available when
+    // renderItems() (called from loadItems()) uses commission/margin settings
+    await loadItems();
+    await loadOrders();
   }
 
   // ── Config ───────────────────────────────────────────────
@@ -1093,7 +1096,7 @@
     const filterDelivery = document.getElementById('order_filter_delivery').value;
 
     const filtered = orders.filter(o => {
-      const matchSearch = !search || [o.order_number, o.customer_name, o.product_name, o.memo].some(
+      const matchSearch = !search || [o.order_number, o.customer_name, o.customer_phone, o.customer_address, o.product_name, o.memo].some(
         v => v && v.toLowerCase().includes(search)
       );
       const matchPayment = !filterPayment || o.payment_status === filterPayment;
