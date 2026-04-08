@@ -5,8 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-from app.models import Item, ItemCreate, Config, ReturnUpdate
-from app.storage import load_items, save_items, load_config, save_config, next_id
+from app.models import Item, ItemCreate, Config, ReturnUpdate, OrderCreate, Order
+from app.storage import load_items, save_items, load_config, save_config, next_id, load_orders, save_orders
 from app.excel_export import export_naver, export_coupang
 
 app = FastAPI(title="SalesAssist")
@@ -99,6 +99,42 @@ def export_coupang_route():
     path = export_coupang(load_items(), load_config())
     return FileResponse(path, filename=Path(path).name,
                         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+
+# ── Orders API ────────────────────────────────────────────────────────────────
+@app.get("/api/orders")
+def get_orders():
+    return load_orders()
+
+
+@app.post("/api/orders", status_code=201)
+def create_order(order: OrderCreate):
+    orders = load_orders()
+    new_order = {"id": next_id(orders), **order.model_dump()}
+    orders.append(new_order)
+    save_orders(orders)
+    return new_order
+
+
+@app.put("/api/orders/{order_id}")
+def update_order(order_id: int, order: OrderCreate):
+    orders = load_orders()
+    for i, existing in enumerate(orders):
+        if existing["id"] == order_id:
+            updated = {"id": order_id, **order.model_dump()}
+            orders[i] = updated
+            save_orders(orders)
+            return orders[i]
+    raise HTTPException(status_code=404, detail="Order not found")
+
+
+@app.delete("/api/orders/{order_id}", status_code=204)
+def delete_order(order_id: int):
+    orders = load_orders()
+    new_orders = [o for o in orders if o["id"] != order_id]
+    if len(new_orders) == len(orders):
+        raise HTTPException(status_code=404, detail="Order not found")
+    save_orders(new_orders)
 
 
 if __name__ == "__main__":
