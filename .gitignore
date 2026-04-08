@@ -15,6 +15,7 @@ env/
 
 # Generated output
 output/*.xlsx
+output/*.png
 
 # IDE
 .vscode/
