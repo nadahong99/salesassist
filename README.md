@@ -1,7 +1,7 @@
 # SalesAssist – 소싱/마진 계산기
 
-네이버·쿠팡 소싱 상품의 마진을 계산하고 엑셀로 내보낼 수 있는 로컬 웹 앱입니다.  
-Python + FastAPI 기반이며, 브라우저에서 바로 사용합니다.
+네이버·쿠팡 소싱 상품의 마진을 계산하고 엑셀로 내보낼 수 있는 웹 앱입니다.  
+**PC에서만 쓸 수도 있고, 클라우드에 올려서 핸드폰·아이패드 등 어디서나 쓸 수도 있습니다.**
 
 ---
 
@@ -19,52 +19,77 @@ Python + FastAPI 기반이며, 브라우저에서 바로 사용합니다.
 
 ---
 
-## 🚀 설치 및 실행 (윈도우 기준)
+## 🖥️ 방법 1 — 내 PC에서만 사용 (로컬 실행)
 
-### 1. 최초 1회 설치
+> PC를 켜야만 사용 가능합니다. 설치가 제일 간단합니다.
 
-```bash
+### 준비물
+
+- Python 3.10 이상 설치 ([python.org](https://www.python.org/downloads/) 에서 무료 다운로드)  
+  ⚠️ 설치 시 **"Add Python to PATH"** 반드시 체크!
+
+### 설치 (최초 1회)
+
+명령 프롬프트(cmd)를 열고 아래 명령어를 한 줄씩 복사·붙여넣기 하세요:
+
+```
 git clone https://github.com/nadahong99/salesassist.git
 cd salesassist
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
-### 2. 앱 실행 (매번)
+### 실행 (매번)
 
-**방법 A – 더블클릭**
-
-탐색기에서 `run_app.py` 파일을 더블클릭합니다.
-
-**방법 B – 명령 프롬프트**
-
-```bash
+```
 python run_app.py
 ```
 
-실행하면 2초 후 브라우저에서 `http://localhost:8000` 이 자동으로 열립니다.  
+실행하면 2초 뒤 브라우저에서 `http://localhost:8000` 이 자동으로 열립니다.  
 종료하려면 이 창에서 **Ctrl+C** 를 누르세요.
 
 ---
 
-## ✅ 최신 코드 받기 (업데이트)
+## ☁️ 방법 2 — 클라우드에 배포 (PC 꺼져도 어디서나 사용)
 
-> **"앱을 실행해도 새 기능이 없어요" / "달라진 게 없어요"** 라면, 먼저 아래 단계를 진행하세요.
+> PC를 꺼도 항상 켜져 있습니다. 핸드폰·아이패드·다른 PC 등 어디서든 접속 가능합니다.  
+> **Render** 라는 무료 클라우드 서비스를 이용합니다. 복잡한 설정 없이 버튼 몇 번으로 완료!
 
-```bash
-# 1. main 브랜치로 이동
-git checkout main
+### 📋 배포 순서 (복잡한 거 없어요!)
 
-# 2. 최신 코드 받기
-git pull origin main
+**1단계 — GitHub 계정 만들기**
 
-# 3. 패키지 업데이트
-pip install -r requirements.txt
+- [github.com](https://github.com) 에서 무료 가입
 
-# 4. 앱 다시 실행
-python run_app.py
-```
+**2단계 — 이 저장소를 내 GitHub에 포크(복사)**
 
-> ⚠️ 이미 앱이 실행 중이라면 **Ctrl+C** 로 먼저 종료한 후 `git pull` 을 진행하세요.
+- 이 페이지 오른쪽 위 **Fork** 버튼 클릭 → "Create fork" 클릭
+
+**3단계 — Render에 배포**
+
+아래 버튼을 클릭하면 Render 사이트로 이동합니다:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/nadahong99/salesassist)
+
+> 버튼이 안 보이면 주소를 직접 복사하세요:  
+> `https://render.com/deploy?repo=https://github.com/nadahong99/salesassist`
+
+**4단계 — Render 가입 및 배포 완료**
+
+1. Render 사이트에서 **GitHub 계정으로 가입/로그인**
+2. "New Web Service" 또는 배포 화면이 뜨면 **"Deploy"** 버튼 클릭
+3. 1~3분 기다리면 `https://salesassist-xxxx.onrender.com` 같은 주소가 생성됩니다
+4. 그 주소를 북마크하거나 핸드폰에 저장하면 **어디서나 접속 가능!**
+
+### 💡 Render 무료 플랜 안내
+
+| 항목 | 내용 |
+|------|------|
+| 비용 | **무료** (가입만 하면 됨) |
+| 접속 | PC·핸드폰·아이패드 등 인터넷만 되면 어디서나 |
+| 주의 | 15분 동안 접속이 없으면 서버가 잠시 슬립 상태가 됨 (첫 접속 시 30초~1분 로딩) |
+| 데이터 | 서버가 재시작되면 입력한 상품 데이터가 초기화될 수 있음 |
+
+> 📝 데이터가 초기화되는 게 불편하다면, Render의 **Persistent Disk** 기능(유료)을 사용하거나 로컬 실행 방식을 선택하세요.
 
 ---
 
@@ -117,11 +142,27 @@ python run_app.py
 
 ---
 
+## ✅ 최신 코드 받기 (로컬 업데이트)
+
+> **"앱을 실행해도 새 기능이 없어요"** 라면, 아래 단계를 진행하세요.
+
+```
+git checkout main
+git pull origin main
+python -m pip install -r requirements.txt
+python run_app.py
+```
+
+> ⚠️ 이미 앱이 실행 중이라면 **Ctrl+C** 로 먼저 종료한 후 `git pull` 을 진행하세요.
+
+---
+
 ## 📁 프로젝트 구조
 
 ```
 salesassist/
-├── run_app.py          # ← 더블클릭으로 실행하는 런처
+├── render.yaml         # ← Render 클라우드 배포 설정
+├── run_app.py          # ← 더블클릭으로 실행하는 런처 (로컬용)
 ├── main.py             # FastAPI 앱 진입점
 ├── requirements.txt
 ├── app/
@@ -136,121 +177,79 @@ salesassist/
 
 ---
 
-## 📦 요구사항
-
-- Python 3.10 이상
-- 패키지: `fastapi`, `uvicorn[standard]`, `pydantic`, `pandas`, `openpyxl`
-
----
-
 ## 🔧 문제 해결 (Troubleshooting)
 
-### ❓ "run 눌러서 실행했는데 달라진 게 없어요"
-
-VS Code나 PyCharm의 **Run 버튼**으로 실행해도 로컬 코드를 그대로 실행합니다.  
-최신 기능을 보려면 먼저 `git pull origin main` 으로 코드를 업데이트해야 합니다.
+### ❓ `pip`이 "내부 또는 외부 명령이 아닙니다" 오류
 
 ```
-아이디어 적용 순서:
-1. git pull origin main   ← 최신 코드를 내려받음
-2. pip install -r requirements.txt   ← 혹시 패키지 변경 있으면 반영
-3. python run_app.py   ← 다시 실행
+python -m pip install -r requirements.txt
 ```
+
+> `pip` 대신 `python -m pip` 를 사용하면 됩니다.  
+> 그래도 안 되면 Python을 [python.org](https://www.python.org/downloads/) 에서 재설치하고 **"Add Python to PATH"** 를 체크하세요.
 
 ---
 
-### ❓ "git pull 해도 바뀐 게 없어요"
+### ❓ 무한 로딩이 걸릴 때
 
-**1. 지금 어떤 브랜치에 있는지 확인**
+1. 서버 창에 빨간 에러 메시지가 없는지 확인  
+2. 브라우저에서 **Ctrl+F5** (강력 새로고침)  
+3. 서버를 완전히 종료(`Ctrl+C`)하고 다시 실행  
+4. 의존성 재설치:
+   ```
+   python -m pip install -r requirements.txt
+   ```
 
-```bash
-git branch
+---
+
+### ❓ 로컬에서 같은 Wi-Fi 내 다른 기기(핸드폰 등)로 접속하고 싶을 때
+
+명령 프롬프트에서:
+
+```
+ipconfig
 ```
 
-`* main` 이 표시돼야 합니다. 다른 브랜치에 있으면:
+`IPv4 주소`(예: `192.168.0.23`)를 확인한 뒤,  
+아래 명령으로 서버를 실행하세요:
 
-```bash
-git checkout main
-git pull origin main
+```
+python -m uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
-**2. pull이 진짜 실행됐는지 확인**
+그러면 같은 Wi-Fi에 연결된 기기에서 `http://192.168.0.23:8000` 으로 접속할 수 있습니다.
 
-```bash
-git log --oneline -5
-```
-
-최근 커밋 목록과 [GitHub 커밋 목록](https://github.com/nadahong99/salesassist/commits/main)을 비교하세요.
-
-**3. 원격 저장소 주소 확인**
-
-```bash
-git remote -v
-```
-
-`https://github.com/nadahong99/salesassist` 가 나와야 합니다.  
-다르면:
-
-```bash
-git remote set-url origin https://github.com/nadahong99/salesassist.git
-```
-
-**4. 패키지 재설치**
-
-```bash
-pip install -r requirements.txt
-```
+> ⚠️ PC와 접속 기기가 **같은 Wi-Fi** 에 연결돼 있어야 합니다.  
+> LTE/5G 데이터망에서 사용하려면 위의 **클라우드 배포(방법 2)** 를 이용하세요.
 
 ---
 
 ### ❓ "앱을 실행했는데 브라우저가 안 열려요 / 빈 화면이에요"
 
-```bash
-# 직접 실행 확인
-python main.py
-```
+브라우저를 직접 열고 주소창에 입력:
 
-그 다음 브라우저에서 직접 주소 입력: `http://localhost:8000`
+```
+http://localhost:8000
+```
 
 포트 충돌이라면 다른 포트 사용:
 
-```bash
+```
 python -m uvicorn main:app --host 127.0.0.1 --port 8001
-# → 브라우저에서 http://localhost:8001 접속
 ```
+
+→ 브라우저에서 `http://localhost:8001` 접속
 
 ---
 
-### ❓ "PR이 아직 열려 있어도 기능이 적용돼 있나요?"
+### ❓ Render 배포 후 첫 접속이 느려요
 
-네. **코드가 `main` 브랜치에 있으면** PR 상태와 관계없이 `git pull origin main` 후 바로 사용 가능합니다.
-
-현재 `main` 브랜치에 포함된 기능:
-
-- `main.py` — FastAPI 서버
-- `run_app.py` — 윈도우 더블클릭 런처
-- `app/models.py` — Config(부가세율 포함), Item(소싱처·URL 포함)
-- `app/excel_export.py` — 소싱처·URL·부가세·반품 현황 포함 엑셀 내보내기
-- `frontend/index.html` — 빠른 마진 계산기 + 키워드 바로가기 + 상품 관리 + **반품 체크리스트 UI**
-
-```bash
-git clone https://github.com/nadahong99/salesassist.git
-cd salesassist
-pip install -r requirements.txt
-python run_app.py
-```
-
-위 4줄만 실행하면 바로 됩니다.
+Render 무료 플랜은 15분 이상 접속이 없으면 서버가 슬립 상태가 됩니다.  
+첫 접속 시 30초~1분 정도 기다리면 정상적으로 로딩됩니다.
 
 ---
 
-## 🛠 (선택) EXE 실행파일로 만들기
+## 📦 요구사항 (로컬 실행 시)
 
-```bash
-pip install pyinstaller
-pyinstaller --onefile run_app.py
-```
-
-생성된 `dist/run_app.exe` 를 원하는 곳에 두고 더블클릭하면 됩니다.
-
-> ⚠️ EXE 빌드 시 `main.py`, `app/`, `frontend/`, `data/` 폴더를 같은 경로에 함께 두어야 합니다.
+- Python 3.10 이상
+- 패키지: `fastapi`, `uvicorn[standard]`, `pydantic`, `pandas`, `openpyxl`
