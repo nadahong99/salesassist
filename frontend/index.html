@@ -15,25 +15,36 @@
     }
 
     header {
-      background: #2563eb;
+      background: linear-gradient(135deg, #1e40af, #2563eb);
       color: #fff;
-      padding: 14px 24px;
-      font-size: 1.2rem;
+      padding: 16px 24px;
+      font-size: 1.25rem;
       font-weight: 700;
       letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
+    header span.version { font-size: .75rem; background: rgba(255,255,255,.25); padding: 2px 8px; border-radius: 99px; font-weight: 500; }
 
-    .container { max-width: 1200px; margin: 0 auto; padding: 20px 16px; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 20px 16px; }
 
     /* ── Card ─────────────────────────────────────────────── */
     .card {
       background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,.1);
-      padding: 18px 20px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 1px 6px rgba(0,0,0,.1);
+      padding: 20px 22px;
+      margin-bottom: 22px;
     }
-    .card h2 { font-size: 1rem; font-weight: 600; margin-bottom: 14px; color: #1d4ed8; }
+    .card h2 {
+      font-size: 1rem; font-weight: 600; margin-bottom: 16px;
+      color: #1d4ed8; display: flex; align-items: center; gap: 8px;
+    }
+    .card h2 .badge {
+      font-size: .7rem; background: #eff6ff; color: #3b82f6;
+      padding: 2px 8px; border-radius: 99px; font-weight: 500;
+    }
 
     /* ── Config card ─────────────────────────────────────── */
     .config-grid {
@@ -43,7 +54,7 @@
     }
     .config-field label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
     .config-field input {
-      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
       border-radius: 6px; font-size: .9rem;
     }
     .config-field input:focus { outline: 2px solid #2563eb; border-color: transparent; }
@@ -51,29 +62,40 @@
     .btn {
       display: inline-block; padding: 8px 18px; border-radius: 7px;
       border: none; cursor: pointer; font-size: .88rem; font-weight: 600;
-      transition: opacity .15s;
+      transition: opacity .15s, transform .1s;
     }
-    .btn:hover { opacity: .85; }
-    .btn-primary { background: #2563eb; color: #fff; }
-    .btn-success { background: #16a34a; color: #fff; }
-    .btn-danger  { background: #dc2626; color: #fff; }
-    .btn-outline { background: #fff; color: #2563eb; border: 1.5px solid #2563eb; }
+    .btn:hover { opacity: .87; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary  { background: #2563eb; color: #fff; }
+    .btn-success  { background: #16a34a; color: #fff; }
+    .btn-danger   { background: #dc2626; color: #fff; }
+    .btn-outline  { background: #fff; color: #2563eb; border: 1.5px solid #2563eb; }
+    .btn-goto     { background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac;
+                    padding: 3px 10px; font-size: .78rem; border-radius: 6px;
+                    text-decoration: none; display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+    .btn-goto:hover { background: #dcfce7; }
 
-    .config-actions { margin-top: 14px; display: flex; gap: 10px; }
+    .config-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
 
     /* ── Add-item form ───────────────────────────────────── */
     .item-form-grid {
       display: grid;
-      grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr auto;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .item-form-row2 {
+      display: grid;
+      grid-template-columns: 1fr 2fr 1fr auto;
       gap: 10px;
       align-items: end;
+      margin-top: 10px;
     }
-    .item-form-grid label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
-    .item-form-grid input {
-      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+    .form-field label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
+    .form-field input {
+      width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
       border-radius: 6px; font-size: .9rem;
     }
-    .item-form-grid input:focus { outline: 2px solid #2563eb; border-color: transparent; }
+    .form-field input:focus { outline: 2px solid #2563eb; border-color: transparent; }
 
     /* ── Table ───────────────────────────────────────────── */
     .table-wrap { overflow-x: auto; }
@@ -82,35 +104,38 @@
     th, td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #e5e7eb; }
     th { font-weight: 600; white-space: nowrap; }
     td.name-cell { text-align: left; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    td.source-cell { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    td.source-cell { min-width: 120px; }
     tr:hover td { background: #f0f9ff; }
 
-    .margin-good   { background: #dcfce7; color: #15803d; font-weight: 600; }
-    .margin-ok     { background: #fef9c3; color: #854d0e; font-weight: 600; }
-    .margin-bad    { background: #fee2e2; color: #991b1b; font-weight: 600; }
+    .margin-good { background: #dcfce7; color: #15803d; font-weight: 600; }
+    .margin-ok   { background: #fef9c3; color: #854d0e; font-weight: 600; }
+    .margin-bad  { background: #fee2e2; color: #991b1b; font-weight: 600; }
 
-    .action-btns { display: flex; gap: 6px; justify-content: center; }
-    .url-link { color: #2563eb; text-decoration: none; font-size: .8rem; }
-    .url-link:hover { text-decoration: underline; }
+    .action-btns { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
+
+    .source-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .source-name { font-size: .8rem; color: #475569; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     /* ── Edit modal ─────────────────────────────────────── */
     .modal-overlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.4); z-index: 100;
+      background: rgba(0,0,0,.45); z-index: 100;
       justify-content: center; align-items: center;
     }
     .modal-overlay.open { display: flex; }
     .modal {
-      background: #fff; border-radius: 12px; padding: 24px 28px;
-      width: 520px; max-width: 95vw; box-shadow: 0 8px 32px rgba(0,0,0,.18);
+      background: #fff; border-radius: 14px; padding: 26px 28px;
+      width: 540px; max-width: 95vw; box-shadow: 0 8px 36px rgba(0,0,0,.2);
     }
-    .modal h3 { margin-bottom: 16px; font-size: 1.05rem; color: #1d4ed8; }
-    .modal-field { margin-bottom: 12px; }
+    .modal h3 { margin-bottom: 18px; font-size: 1.05rem; color: #1d4ed8; }
+    .modal-field { margin-bottom: 13px; }
     .modal-field label { display: block; font-size: .8rem; color: #555; margin-bottom: 4px; }
     .modal-field input {
       width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
       border-radius: 6px; font-size: .9rem;
     }
+    .modal-field input:focus { outline: 2px solid #2563eb; border-color: transparent; }
+    .modal-field .url-preview { margin-top: 6px; }
     .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; }
 
     /* ── Quick calculator ────────────────────────────────── */
@@ -122,15 +147,31 @@
     }
     .calc-field label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
     .calc-field input, .calc-field select {
-      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      width: 100%; padding: 8px 10px; border: 1px solid #d1d5db;
       border-radius: 6px; font-size: .9rem;
     }
     .calc-result {
-      margin-top: 14px; padding: 12px 16px; border-radius: 8px;
-      background: #eff6ff; font-size: .95rem; display: none;
+      margin-top: 14px; padding: 13px 16px; border-radius: 8px;
+      background: #eff6ff; font-size: .92rem; display: none;
+      border-left: 4px solid #2563eb;
     }
     .calc-result.show { display: block; }
     .calc-result span { font-weight: 700; }
+
+    /* ── Tax/Receipt summary ─────────────────────────────── */
+    .tax-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 14px;
+    }
+    .tax-card {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px;
+      padding: 14px 16px;
+    }
+    .tax-card .tc-label { font-size: .78rem; color: #64748b; margin-bottom: 6px; }
+    .tax-card .tc-value { font-size: 1.2rem; font-weight: 700; color: #1e293b; }
+    .tax-card .tc-value.highlight { color: #2563eb; }
+    .tax-actions { margin-top: 14px; display: flex; gap: 10px; flex-wrap: wrap; }
 
     /* ── Trend links ─────────────────────────────────────── */
     .link-grid {
@@ -140,14 +181,14 @@
     }
     .link-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; border-radius: 8px;
+      padding: 11px 14px; border-radius: 8px;
       background: #f8fafc; border: 1px solid #e2e8f0;
       text-decoration: none; color: #1e293b;
       font-size: .88rem; font-weight: 500;
-      transition: background .15s, border-color .15s;
+      transition: background .15s, border-color .15s, transform .1s;
     }
-    .link-item:hover { background: #eff6ff; border-color: #93c5fd; }
-    .link-item .icon { font-size: 1.2rem; flex-shrink: 0; }
+    .link-item:hover { background: #eff6ff; border-color: #93c5fd; transform: translateY(-1px); }
+    .link-item .icon { font-size: 1.25rem; flex-shrink: 0; }
     .link-desc { font-size: .75rem; color: #64748b; margin-top: 2px; }
 
     /* ── Toast ───────────────────────────────────────────── */
@@ -159,24 +200,31 @@
     }
     #toast.show { opacity: 1; }
 
-    @media (max-width: 800px) {
+    @media (max-width: 900px) {
       .item-form-grid { grid-template-columns: 1fr 1fr; }
-      .item-form-grid > :last-child { grid-column: 1/-1; }
-      .link-grid { grid-template-columns: 1fr 1fr; }
+      .item-form-row2 { grid-template-columns: 1fr 1fr; }
+      .item-form-row2 > :last-child { grid-column: 1/-1; }
     }
-    @media (max-width: 500px) {
+    @media (max-width: 600px) {
+      .link-grid { grid-template-columns: 1fr 1fr; }
+      .item-form-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 400px) {
       .link-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-<header>🛒 SalesAssist – 소싱/마진 계산기</header>
+<header>
+  🛒 SalesAssist – 소싱/마진 계산기
+  <span class="version">v2.0</span>
+</header>
 
 <div class="container">
 
-  <!-- Config -->
+  <!-- ── Config ── -->
   <div class="card">
-    <h2>⚙️ 비용 설정</h2>
+    <h2>⚙️ 비용 설정 <span class="badge">세금 포함</span></h2>
     <div class="config-grid" id="configGrid">
       <div class="config-field">
         <label>네이버 수수료 (%)</label>
@@ -204,13 +252,13 @@
       </div>
     </div>
     <div class="config-actions">
-      <button class="btn btn-primary" onclick="saveConfig()">저장</button>
+      <button class="btn btn-primary" onclick="saveConfig()">💾 저장</button>
     </div>
   </div>
 
-  <!-- Quick profit calculator -->
+  <!-- ── Quick profit calculator ── -->
   <div class="card">
-    <h2>🧮 빠른 마진 계산기 (임시 계산용)</h2>
+    <h2>🧮 빠른 마진 계산기 <span class="badge">임시 계산용</span></h2>
     <div class="calc-grid">
       <div class="calc-field">
         <label>매입가 (원)</label>
@@ -231,9 +279,37 @@
     <div class="calc-result" id="calcResult"></div>
   </div>
 
-  <!-- Keyword / trend links -->
+  <!-- ── Tax / Receipt Summary ── -->
   <div class="card">
-    <h2>🔗 키워드·트렌드 바로가기</h2>
+    <h2>🧾 세금/영수증 관리</h2>
+    <div class="tax-summary-grid" id="taxSummaryGrid">
+      <div class="tax-card">
+        <div class="tc-label">총 매입 원가</div>
+        <div class="tc-value highlight" id="ts_total_purchase">-</div>
+      </div>
+      <div class="tax-card">
+        <div class="tc-label">예상 총 매출 (네이버)</div>
+        <div class="tc-value" id="ts_naver_revenue">-</div>
+      </div>
+      <div class="tax-card">
+        <div class="tc-label">예상 총 매출 (쿠팡)</div>
+        <div class="tc-value" id="ts_coupang_revenue">-</div>
+      </div>
+      <div class="tax-card">
+        <div class="tc-label">예상 부가세 (네이버 기준)</div>
+        <div class="tc-value" id="ts_tax_amount">-</div>
+      </div>
+    </div>
+    <div class="tax-actions">
+      <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 영수증 엑셀</button>
+      <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 영수증 엑셀</button>
+      <small style="color:#9ca3af; align-self:center">※ 엑셀 파일에 상품별 매입가·판매가·수수료·부가세 포함</small>
+    </div>
+  </div>
+
+  <!-- ── Keyword / trend links ── -->
+  <div class="card">
+    <h2>�� 소싱·키워드·트렌드 바로가기</h2>
     <div class="link-grid">
       <a class="link-item" href="https://datalab.naver.com/shoppingInsight/sCategory.naver" target="_blank" rel="noopener noreferrer">
         <span class="icon">📊</span>
@@ -294,55 +370,57 @@
     </div>
   </div>
 
-  <!-- Add item -->
+  <!-- ── Add item ── -->
   <div class="card">
     <h2>➕ 상품 추가</h2>
     <div class="item-form-grid">
-      <div>
+      <div class="form-field">
         <label>상품명 *</label>
-        <input type="text" id="f_name" placeholder="상품명" />
+        <input type="text" id="f_name" placeholder="상품명을 입력하세요" />
       </div>
-      <div>
+      <div class="form-field">
         <label>매입가 (원) *</label>
         <input type="number" id="f_purchase_price" placeholder="0" min="0" />
       </div>
-      <div>
+      <div class="form-field">
         <label>네이버 판매가 (원)</label>
         <input type="number" id="f_naver_price" placeholder="0" min="0" />
       </div>
-      <div>
+      <div class="form-field">
         <label>쿠팡 판매가 (원)</label>
         <input type="number" id="f_coupang_price" placeholder="0" min="0" />
       </div>
-      <div>
-        <label>소싱처</label>
+    </div>
+    <div class="item-form-row2">
+      <div class="form-field">
+        <label>소싱처 (사이트명)</label>
         <input type="text" id="f_source" placeholder="예: 알리익스프레스" />
       </div>
-      <div>
+      <div class="form-field">
+        <label>🔗 소싱 URL <small style="color:#3b82f6;font-weight:600">(상품 목록에 바로가기 버튼으로 표시)</small></label>
+        <input type="url" id="f_url" placeholder="https://..." />
+      </div>
+      <div class="form-field">
         <label>메모</label>
         <input type="text" id="f_memo" placeholder="메모" />
       </div>
-      <div>
+      <div class="form-field">
         <label>&nbsp;</label>
-        <button class="btn btn-success" onclick="addItem()">추가</button>
+        <button class="btn btn-success" onclick="addItem()" style="width:100%">추가</button>
       </div>
-    </div>
-    <div style="margin-top:10px;">
-      <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">소싱 URL</label>
-      <input type="url" id="f_url" placeholder="https://..." style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
     </div>
   </div>
 
-  <!-- Items table -->
+  <!-- ── Items table ── -->
   <div class="card">
-    <h2>📋 상품 목록</h2>
+    <h2>📋 상품 목록 <span class="badge" id="itemCount">0개</span></h2>
     <div class="table-wrap">
       <table id="itemTable">
         <thead>
           <tr>
             <th>#</th>
             <th>상품명</th>
-            <th>소싱처</th>
+            <th>소싱처 / 바로가기</th>
             <th>매입가</th>
             <th>네이버 판매가</th>
             <th>네이버 마진율</th>
@@ -355,29 +433,47 @@
         <tbody id="itemBody"></tbody>
       </table>
     </div>
-
-    <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
-      <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 엑셀</button>
-      <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 엑셀</button>
-    </div>
   </div>
+
 </div>
 
-<!-- Edit modal -->
+<!-- ── Edit modal ── -->
 <div class="modal-overlay" id="editModal">
   <div class="modal">
     <h3>✏️ 상품 수정</h3>
     <input type="hidden" id="edit_id" />
-    <div class="modal-field"><label>상품명</label><input type="text" id="edit_name" /></div>
-    <div class="modal-field"><label>매입가 (원)</label><input type="number" id="edit_purchase_price" min="0" /></div>
-    <div class="modal-field"><label>네이버 판매가 (원)</label><input type="number" id="edit_naver_price" min="0" /></div>
-    <div class="modal-field"><label>쿠팡 판매가 (원)</label><input type="number" id="edit_coupang_price" min="0" /></div>
-    <div class="modal-field"><label>소싱처</label><input type="text" id="edit_source" /></div>
-    <div class="modal-field"><label>소싱 URL</label><input type="url" id="edit_url" /></div>
-    <div class="modal-field"><label>메모</label><input type="text" id="edit_memo" /></div>
+    <div class="modal-field">
+      <label>상품명</label>
+      <input type="text" id="edit_name" />
+    </div>
+    <div class="modal-field">
+      <label>매입가 (원)</label>
+      <input type="number" id="edit_purchase_price" min="0" />
+    </div>
+    <div class="modal-field">
+      <label>네이버 판매가 (원)</label>
+      <input type="number" id="edit_naver_price" min="0" />
+    </div>
+    <div class="modal-field">
+      <label>쿠팡 판매가 (원)</label>
+      <input type="number" id="edit_coupang_price" min="0" />
+    </div>
+    <div class="modal-field">
+      <label>소싱처 (사이트명)</label>
+      <input type="text" id="edit_source" placeholder="예: 알리익스프레스" />
+    </div>
+    <div class="modal-field">
+      <label>🔗 소싱 URL <small style="color:#3b82f6">(저장하면 바로가기 버튼이 상품 목록에 표시됩니다)</small></label>
+      <input type="url" id="edit_url" placeholder="https://..." oninput="updateUrlPreview()" />
+      <div class="url-preview" id="edit_url_preview"></div>
+    </div>
+    <div class="modal-field">
+      <label>메모</label>
+      <input type="text" id="edit_memo" />
+    </div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">취소</button>
-      <button class="btn btn-primary" onclick="saveEdit()">저장</button>
+      <button class="btn btn-primary" onclick="saveEdit()">💾 저장</button>
     </div>
   </div>
 </div>
@@ -398,28 +494,32 @@
   async function loadConfig() {
     const res = await fetch('/api/config');
     config = await res.json();
-    document.getElementById('cfg_naver_commission').value = config.naver_commission;
+    document.getElementById('cfg_naver_commission').value  = config.naver_commission;
     document.getElementById('cfg_coupang_commission').value = config.coupang_commission;
-    document.getElementById('cfg_shipping_cost').value = config.shipping_cost;
-    document.getElementById('cfg_other_cost').value = config.other_cost;
-    document.getElementById('cfg_target_margin').value = config.target_margin;
-    document.getElementById('cfg_tax_rate').value = config.tax_rate ?? 0;
+    document.getElementById('cfg_shipping_cost').value     = config.shipping_cost;
+    document.getElementById('cfg_other_cost').value        = config.other_cost;
+    document.getElementById('cfg_target_margin').value     = config.target_margin;
+    document.getElementById('cfg_tax_rate').value          = config.tax_rate ?? 0;
   }
 
   async function saveConfig() {
     const body = {
-      naver_commission: parseFloat(document.getElementById('cfg_naver_commission').value) || 0,
-      coupang_commission: parseFloat(document.getElementById('cfg_coupang_commission').value) || 0,
-      shipping_cost: parseFloat(document.getElementById('cfg_shipping_cost').value) || 0,
-      other_cost: parseFloat(document.getElementById('cfg_other_cost').value) || 0,
-      target_margin: parseFloat(document.getElementById('cfg_target_margin').value) || 0,
-      tax_rate: parseFloat(document.getElementById('cfg_tax_rate').value) || 0,
+      naver_commission:  parseFloat(document.getElementById('cfg_naver_commission').value)  || 0,
+      coupang_commission:parseFloat(document.getElementById('cfg_coupang_commission').value) || 0,
+      shipping_cost:     parseFloat(document.getElementById('cfg_shipping_cost').value)     || 0,
+      other_cost:        parseFloat(document.getElementById('cfg_other_cost').value)        || 0,
+      target_margin:     parseFloat(document.getElementById('cfg_target_margin').value)     || 0,
+      tax_rate:          parseFloat(document.getElementById('cfg_tax_rate').value)          || 0,
     };
-    const res = await fetch('/api/config', { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const res = await fetch('/api/config', {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
     if (res.ok) {
       config = await res.json();
       renderItems();
       calcQuick();
+      renderTaxSummary();
       toast('설정이 저장되었습니다.');
     }
   }
@@ -427,19 +527,18 @@
   // ── Quick calculator ──────────────────────────────────────
   function calcQuick() {
     const purchase = parseFloat(document.getElementById('qc_purchase').value) || 0;
-    const sell = parseFloat(document.getElementById('qc_sell').value) || 0;
+    const sell     = parseFloat(document.getElementById('qc_sell').value) || 0;
     const platform = document.getElementById('qc_platform').value;
-    const el = document.getElementById('calcResult');
-
+    const el       = document.getElementById('calcResult');
     if (!purchase || !sell) { el.classList.remove('show'); return; }
 
-    const commPct = config[`${platform}_commission`] || 0;
+    const commPct  = config[`${platform}_commission`] || 0;
     const shipping = config.shipping_cost || 0;
-    const other = config.other_cost || 0;
-    const tax = config.tax_rate || 0;
+    const other    = config.other_cost || 0;
+    const tax      = config.tax_rate || 0;
     const commission = sell * commPct / 100;
-    const taxAmt = sell * tax / 100;
-    const profit = sell - purchase - commission - shipping - other - taxAmt;
+    const taxAmt     = sell * tax / 100;
+    const profit     = sell - purchase - commission - shipping - other - taxAmt;
     const marginRate = (profit / sell * 100).toFixed(1);
     const color = parseFloat(marginRate) >= (config.target_margin || 20) ? '#15803d'
                 : parseFloat(marginRate) >= (config.target_margin || 20) * 0.5 ? '#854d0e'
@@ -448,9 +547,29 @@
     el.innerHTML = `
       마진(원): <span style="color:${color}">${Math.round(profit).toLocaleString()}원</span> &nbsp;|&nbsp;
       마진율: <span style="color:${color}">${marginRate}%</span>
-      <small style="color:#64748b;margin-left:12px">(수수료 ${Math.round(commission).toLocaleString()}원 / 배송비 ${shipping.toLocaleString()}원 / 기타 ${other.toLocaleString()}원${tax > 0 ? ` / 부가세 ${Math.round(taxAmt).toLocaleString()}원` : ''})</small>
-    `;
+      <small style="color:#64748b;margin-left:12px">
+        (수수료 ${Math.round(commission).toLocaleString()}원 / 배송비 ${shipping.toLocaleString()}원
+        / 기타 ${other.toLocaleString()}원${tax > 0 ? ` / 부가세 ${Math.round(taxAmt).toLocaleString()}원` : ''})
+      </small>`;
     el.classList.add('show');
+  }
+
+  // ── Tax / Receipt Summary ─────────────────────────────────
+  function renderTaxSummary() {
+    let totalPurchase = 0, naverRev = 0, coupangRev = 0;
+    items.forEach(item => {
+      totalPurchase += item.purchase_price || 0;
+      naverRev   += item.naver_price   || 0;
+      coupangRev += item.coupang_price || 0;
+    });
+    const taxRate = config.tax_rate || 0;
+    const taxAmt  = Math.round(naverRev * taxRate / 100);
+
+    const f = v => v.toLocaleString() + '원';
+    document.getElementById('ts_total_purchase').textContent = f(totalPurchase);
+    document.getElementById('ts_naver_revenue').textContent  = f(naverRev);
+    document.getElementById('ts_coupang_revenue').textContent= f(coupangRev);
+    document.getElementById('ts_tax_amount').textContent     = taxRate > 0 ? f(taxAmt) : '부가세율 0% (미적용)';
   }
 
   // ── Items ────────────────────────────────────────────────
@@ -458,21 +577,22 @@
     const res = await fetch('/api/items');
     items = await res.json();
     renderItems();
+    renderTaxSummary();
   }
 
   function calcMargin(sellPrice, purchasePrice, commissionPct) {
     if (!sellPrice || sellPrice <= 0) return null;
     const commission = sellPrice * commissionPct / 100;
-    const tax = sellPrice * (config.tax_rate || 0) / 100;
-    const profit = sellPrice - purchasePrice - commission - (config.shipping_cost || 0) - (config.other_cost || 0) - tax;
+    const tax  = sellPrice * (config.tax_rate || 0) / 100;
+    const profit = sellPrice - purchasePrice - commission
+                 - (config.shipping_cost || 0) - (config.other_cost || 0) - tax;
     return (profit / sellPrice * 100).toFixed(1);
   }
 
   function marginClass(val) {
     if (val === null) return '';
-    const v = parseFloat(val);
-    const t = config.target_margin || 20;
-    if (v >= t) return 'margin-good';
+    const v = parseFloat(val), t = config.target_margin || 20;
+    if (v >= t)       return 'margin-good';
     if (v >= t * 0.5) return 'margin-ok';
     return 'margin-bad';
   }
@@ -482,21 +602,39 @@
   function renderItems() {
     const tbody = document.getElementById('itemBody');
     tbody.innerHTML = '';
+    document.getElementById('itemCount').textContent = items.length + '개';
+
     if (items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
+      const colCount = document.querySelectorAll('#itemTable thead th').length || 10; // 10 = number of header columns
+      tbody.innerHTML = `<tr><td colspan="${colCount}" style="color:#9ca3af;padding:28px">등록된 상품이 없습니다. 위 폼으로 상품을 추가해보세요.</td></tr>`;
       return;
     }
+
     items.forEach((item, idx) => {
-      const nm = calcMargin(item.naver_price, item.purchase_price, config.naver_commission || 0);
+      const nm = calcMargin(item.naver_price,   item.purchase_price, config.naver_commission   || 0);
       const cm = calcMargin(item.coupang_price, item.purchase_price, config.coupang_commission || 0);
-      const sourceCell = item.url
-        ? `<a class="url-link" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" title="${esc(item.url)}">${esc(item.source || item.url)}</a>`
-        : esc(item.source || '');
+
+      // Source cell: name + green "바로가기" button if URL exists
+      let sourceHtml = '';
+      if (item.source || item.url) {
+        sourceHtml = `<div class="source-wrap">`;
+        if (item.source) {
+          sourceHtml += `<span class="source-name" title="${esc(item.source)}">${esc(item.source)}</span>`;
+        }
+        if (item.url) {
+          const safe = safeUrl(item.url);
+          if (safe) {
+            sourceHtml += `<a class="btn-goto" href="${esc(safe)}" target="_blank" rel="noopener noreferrer">🔗 바로가기</a>`;
+          }
+        }
+        sourceHtml += `</div>`;
+      }
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${idx + 1}</td>
         <td class="name-cell" title="${esc(item.name)}">${esc(item.name)}</td>
-        <td class="source-cell">${sourceCell}</td>
+        <td class="source-cell">${sourceHtml}</td>
         <td>${fmt(item.purchase_price)}</td>
         <td>${fmt(item.naver_price)}</td>
         <td class="${marginClass(nm)}">${nm !== null ? nm + '%' : '-'}</td>
@@ -514,28 +652,34 @@
   }
 
   async function addItem() {
-    const name = document.getElementById('f_name').value.trim();
+    const name           = document.getElementById('f_name').value.trim();
     const purchase_price = parseFloat(document.getElementById('f_purchase_price').value);
-    if (!name || isNaN(purchase_price)) { toast('상품명과 매입가는 필수입니다.', true); return; }
+    if (!name || isNaN(purchase_price)) {
+      toast('상품명과 매입가는 필수입니다.', true); return;
+    }
     const body = {
       name,
       purchase_price,
-      naver_price: parseFloat(document.getElementById('f_naver_price').value) || null,
+      naver_price:   parseFloat(document.getElementById('f_naver_price').value)   || null,
       coupang_price: parseFloat(document.getElementById('f_coupang_price').value) || null,
       source: document.getElementById('f_source').value.trim(),
-      url: document.getElementById('f_url').value.trim(),
-      memo: document.getElementById('f_memo').value.trim(),
+      url:    document.getElementById('f_url').value.trim(),
+      memo:   document.getElementById('f_memo').value.trim(),
     };
-    const res = await fetch('/api/items', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const res = await fetch('/api/items', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
     if (res.ok) {
-      ['f_name','f_purchase_price','f_naver_price','f_coupang_price','f_source','f_url','f_memo'].forEach(id => document.getElementById(id).value = '');
+      ['f_name','f_purchase_price','f_naver_price','f_coupang_price','f_source','f_url','f_memo']
+        .forEach(id => { document.getElementById(id).value = ''; });
       await loadItems();
       toast('상품이 추가되었습니다.');
     }
   }
 
   async function deleteItem(id) {
-    if (!confirm('삭제하시겠습니까?')) return;
+    if (!confirm('이 상품을 삭제하시겠습니까?')) return;
     await fetch(`/api/items/${id}`, { method: 'DELETE' });
     await loadItems();
     toast('삭제되었습니다.');
@@ -545,31 +689,51 @@
   function openEdit(id) {
     const item = items.find(i => i.id === id);
     if (!item) return;
-    document.getElementById('edit_id').value = item.id;
-    document.getElementById('edit_name').value = item.name;
+    document.getElementById('edit_id').value             = item.id;
+    document.getElementById('edit_name').value           = item.name;
     document.getElementById('edit_purchase_price').value = item.purchase_price;
-    document.getElementById('edit_naver_price').value = item.naver_price || '';
-    document.getElementById('edit_coupang_price').value = item.coupang_price || '';
-    document.getElementById('edit_source').value = item.source || '';
-    document.getElementById('edit_url').value = item.url || '';
-    document.getElementById('edit_memo').value = item.memo || '';
+    document.getElementById('edit_naver_price').value    = item.naver_price   || '';
+    document.getElementById('edit_coupang_price').value  = item.coupang_price || '';
+    document.getElementById('edit_source').value         = item.source || '';
+    document.getElementById('edit_url').value            = item.url    || '';
+    document.getElementById('edit_memo').value           = item.memo   || '';
+    updateUrlPreview();
     document.getElementById('editModal').classList.add('open');
   }
 
-  function closeModal() { document.getElementById('editModal').classList.remove('open'); }
+  function updateUrlPreview() {
+    const url = document.getElementById('edit_url').value.trim();
+    const preview = document.getElementById('edit_url_preview');
+    const safe = safeUrl(url);
+    if (safe) {
+      preview.innerHTML = `미리보기: <a class="btn-goto" href="${esc(safe)}" target="_blank" rel="noopener noreferrer">🔗 바로가기</a>`;
+    } else if (url) {
+      preview.innerHTML = `<small style="color:#dc2626">유효한 URL이 아닙니다 (http:// 또는 https://로 시작해야 합니다)</small>`;
+    } else {
+      preview.innerHTML = '';
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('editModal').classList.remove('open');
+    document.getElementById('edit_url_preview').innerHTML = '';
+  }
 
   async function saveEdit() {
     const id = parseInt(document.getElementById('edit_id').value);
     const body = {
-      name: document.getElementById('edit_name').value.trim(),
+      name:           document.getElementById('edit_name').value.trim(),
       purchase_price: parseFloat(document.getElementById('edit_purchase_price').value) || 0,
-      naver_price: parseFloat(document.getElementById('edit_naver_price').value) || null,
-      coupang_price: parseFloat(document.getElementById('edit_coupang_price').value) || null,
+      naver_price:    parseFloat(document.getElementById('edit_naver_price').value)    || null,
+      coupang_price:  parseFloat(document.getElementById('edit_coupang_price').value)  || null,
       source: document.getElementById('edit_source').value.trim(),
-      url: document.getElementById('edit_url').value.trim(),
-      memo: document.getElementById('edit_memo').value.trim(),
+      url:    document.getElementById('edit_url').value.trim(),
+      memo:   document.getElementById('edit_memo').value.trim(),
     };
-    const res = await fetch(`/api/items/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    const res = await fetch(`/api/items/${id}`, {
+      method: 'PUT', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
     if (res.ok) {
       closeModal();
       await loadItems();
@@ -584,7 +748,20 @@
 
   // ── Helpers ──────────────────────────────────────────────
   function esc(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /** Only allow http/https URLs to prevent javascript: or data: injection */
+  function safeUrl(url) {
+    try {
+      const u = new URL(url);
+      if (u.protocol === 'http:' || u.protocol === 'https:') return url;
+    } catch (_) { /* invalid URL */ }
+    return null;
   }
 
   let toastTimer;
