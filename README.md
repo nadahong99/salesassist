@@ -5,39 +5,26 @@ Python + FastAPI 기반이며, 브라우저에서 바로 사용합니다.
 
 ---
 
-## ✅ 최신 코드 받기 (git pull)
+## ✨ 주요 기능
 
-> **"바뀐 것이 없어요" / "달라진 게 없어요" 라고 느껴질 때 이 단계를 먼저 하세요.**
-
-### 처음 받는 경우 (clone)
-
-```bash
-git clone https://github.com/nadahong99/salesassist.git
-cd salesassist
-```
-
-### 이미 clone 했는데 최신 버전으로 업데이트하고 싶을 때
-
-```bash
-# 1. main 브랜치로 이동
-git checkout main
-
-# 2. 최신 코드 내려받기
-git pull origin main
-
-# 3. (최신 코드로 변경됐으면) 패키지 다시 설치
-pip install -r requirements.txt
-```
-
-> ⚠️ `git pull` 후에도 변화가 없어 보이면 아래 **🔧 문제 해결** 섹션을 참고하세요.
+| 기능 | 설명 |
+|------|------|
+| ⚙️ 비용 설정 | 수수료(%), 배송비, 기타비용, 목표 마진율, **부가세율(%)** 설정 |
+| 🧮 빠른 마진 계산기 | 저장 없이 매입가·판매가를 입력하면 즉시 마진 계산 |
+| 🔗 키워드·트렌드 바로가기 | 네이버 데이터랩, 쇼핑인사이트, 스마트스토어, 쿠팡Wing, 알리익스프레스 등 한 번에 이동 |
+| ➕ 상품 관리 | 상품 추가·수정·삭제 — **소싱처, 소싱 URL** 포함 |
+| 📊 마진 색상 표시 | 목표 달성(초록), 절반 이상(노랑), 미달(빨강) |
+| 📥 엑셀 내보내기 | 네이버·쿠팡별 마진 분석 엑셀 다운로드 (소싱처·URL·부가세 포함) |
 
 ---
 
-## 🚀 윈도우에서 제일 편한 사용 방법
+## 🚀 설치 및 실행 (윈도우 기준)
 
 ### 1. 최초 1회 설치
 
 ```bash
+git clone https://github.com/nadahong99/salesassist.git
+cd salesassist
 pip install -r requirements.txt
 ```
 
@@ -53,20 +40,30 @@ pip install -r requirements.txt
 python run_app.py
 ```
 
-실행하면:
-
-1. 서버가 자동으로 시작됩니다.
-2. 2초 후 기본 브라우저에서 `http://localhost:8000` 이 열립니다.
-3. 앱을 다 쓰고 나면 이 창에서 **Ctrl+C** 를 누르거나 창을 닫으면 서버가 종료됩니다.
+실행하면 2초 후 브라우저에서 `http://localhost:8000` 이 자동으로 열립니다.  
+종료하려면 이 창에서 **Ctrl+C** 를 누르세요.
 
 ---
 
-## ✨ 주요 기능
+## ✅ 최신 코드 받기 (업데이트)
 
-- **비용 설정**: 수수료(%), 배송비, 기타비용, 목표 마진율 설정
-- **상품 관리**: 상품 추가/수정/삭제
-- **마진 색상 표시**: 목표 달성(초록), 절반 이상(노랑), 미달(빨강)
-- **엑셀 내보내기**: 네이버/쿠팡별 마진 분석 엑셀 파일 다운로드
+> **"앱을 실행해도 새 기능이 없어요" / "달라진 게 없어요"** 라면, 먼저 아래 단계를 진행하세요.
+
+```bash
+# 1. main 브랜치로 이동
+git checkout main
+
+# 2. 최신 코드 받기
+git pull origin main
+
+# 3. 패키지 업데이트
+pip install -r requirements.txt
+
+# 4. 앱 다시 실행
+python run_app.py
+```
+
+> ⚠️ 이미 앱이 실행 중이라면 **Ctrl+C** 로 먼저 종료한 후 `git pull` 을 진행하세요.
 
 ---
 
@@ -78,29 +75,14 @@ salesassist/
 ├── main.py             # FastAPI 앱 진입점
 ├── requirements.txt
 ├── app/
-│   ├── models.py       # Pydantic 모델
+│   ├── models.py       # Pydantic 모델 (Config, Item 등)
 │   ├── storage.py      # JSON 데이터 저장
 │   └── excel_export.py # 엑셀 내보내기
 ├── frontend/
 │   └── index.html      # 웹 UI
-├── data/               # 설정/상품 데이터 저장 위치
-└── output/             # 생성된 엑셀 파일 저장 위치
+├── data/               # 설정/상품 데이터 저장 위치 (자동 생성)
+└── output/             # 생성된 엑셀 파일 저장 위치 (자동 생성)
 ```
-
----
-
-## 🛠 (선택) EXE 실행파일로 만들기
-
-매번 Python 없이 `run_app.exe` 하나만 더블클릭해서 쓰고 싶다면:
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile run_app.py
-```
-
-생성된 `dist/run_app.exe` 를 원하는 곳에 두고 더블클릭하면 됩니다.
-
-> ⚠️ EXE 빌드 시 `main.py`, `app/`, `frontend/`, `data/` 폴더를 같은 경로에 함께 두어야 합니다.
 
 ---
 
@@ -113,9 +95,21 @@ pyinstaller --onefile run_app.py
 
 ## 🔧 문제 해결 (Troubleshooting)
 
-### "git pull 해도 바뀐 게 없어요"
+### ❓ "run 눌러서 실행했는데 달라진 게 없어요"
 
-아래 순서로 확인하세요.
+VS Code나 PyCharm의 **Run 버튼**으로 실행해도 로컬 코드를 그대로 실행합니다.  
+최신 기능을 보려면 먼저 `git pull origin main` 으로 코드를 업데이트해야 합니다.
+
+```
+아이디어 적용 순서:
+1. git pull origin main   ← 최신 코드를 내려받음
+2. pip install -r requirements.txt   ← 혹시 패키지 변경 있으면 반영
+3. python run_app.py   ← 다시 실행
+```
+
+---
+
+### ❓ "git pull 해도 바뀐 게 없어요"
 
 **1. 지금 어떤 브랜치에 있는지 확인**
 
@@ -130,46 +124,36 @@ git checkout main
 git pull origin main
 ```
 
-**2. 원격 저장소 주소 확인**
+**2. pull이 진짜 실행됐는지 확인**
+
+```bash
+git log --oneline -5
+```
+
+최근 커밋 목록과 [GitHub 커밋 목록](https://github.com/nadahong99/salesassist/commits/main)을 비교하세요.
+
+**3. 원격 저장소 주소 확인**
 
 ```bash
 git remote -v
 ```
 
 `https://github.com/nadahong99/salesassist` 가 나와야 합니다.  
-다르면: `` git remote set-url origin https://github.com/nadahong99/salesassist.git ``
-
-**3. pull이 진짜 실행됐는지 확인**
+다르면:
 
 ```bash
-git log --oneline -5
+git remote set-url origin https://github.com/nadahong99/salesassist.git
 ```
 
-최근 커밋 목록이 나옵니다. 가장 위 커밋의 날짜/내용을 GitHub 페이지와 비교해보세요.
-
-**4. 파일이 업데이트됐는지 확인**
-
-```bash
-# Windows 명령 프롬프트
-dir
-
-# Windows PowerShell / Git Bash
-ls -la
-```
-
-`main.py`, `run_app.py`, `app/`, `frontend/` 폴더가 모두 보여야 합니다.
-
-**5. 패키지(라이브러리)가 설치됐는지 확인**
+**4. 패키지 재설치**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-이미 설치됐어도 오류 없이 완료됩니다.
-
 ---
 
-### "앱을 실행해도 브라우저에 아무것도 안 떠요"
+### ❓ "앱을 실행했는데 브라우저가 안 열려요 / 빈 화면이에요"
 
 ```bash
 # 직접 실행 확인
@@ -178,27 +162,26 @@ python main.py
 
 그 다음 브라우저에서 직접 주소 입력: `http://localhost:8000`
 
-포트 충돌이라면:
+포트 충돌이라면 다른 포트 사용:
 
 ```bash
 python -m uvicorn main:app --host 127.0.0.1 --port 8001
-# → 브라우저에서 http://localhost:8001 로 접속
+# → 브라우저에서 http://localhost:8001 접속
 ```
 
 ---
 
-### "PR이 아직 열려 있는데 코드가 반영이 안 된 건가요?"
+### ❓ "PR이 아직 열려 있어도 기능이 적용돼 있나요?"
 
-아니오. **PR #1 은 아직 열려 있지만, 모든 기능은 이미 `main` 브랜치에 반영되어 있습니다.**  
-GitHub에서 PR이 열린(Open) 상태여도 코드가 `main`에 있으면 `git pull origin main` 후 바로 사용 가능합니다.
+네. **코드가 `main` 브랜치에 있으면** PR 상태와 관계없이 `git pull origin main` 후 바로 사용 가능합니다.
 
-현재 `main` 브랜치에는 다음이 모두 포함되어 있습니다:
+현재 `main` 브랜치에 포함된 기능:
 
 - `main.py` — FastAPI 서버
 - `run_app.py` — 윈도우 더블클릭 런처
-- `requirements.txt` — 필요 패키지 목록
-- `app/` — 모델·저장·엑셀 내보내기 모듈
-- `frontend/index.html` — 웹 UI
+- `app/models.py` — Config(부가세율 포함), Item(소싱처·URL 포함)
+- `app/excel_export.py` — 소싱처·URL·부가세 포함 엑셀 내보내기
+- `frontend/index.html` — 빠른 마진 계산기 + 키워드 바로가기 + 상품 관리 UI
 
 ```bash
 git clone https://github.com/nadahong99/salesassist.git
@@ -209,3 +192,15 @@ python run_app.py
 
 위 4줄만 실행하면 바로 됩니다.
 
+---
+
+## 🛠 (선택) EXE 실행파일로 만들기
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile run_app.py
+```
+
+생성된 `dist/run_app.exe` 를 원하는 곳에 두고 더블클릭하면 됩니다.
+
+> ⚠️ EXE 빌드 시 `main.py`, `app/`, `frontend/`, `data/` 폴더를 같은 경로에 함께 두어야 합니다.

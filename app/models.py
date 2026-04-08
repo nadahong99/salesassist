@@ -8,6 +8,7 @@ class Config(BaseModel):
     shipping_cost: float = Field(default=3000, description="배송비 (원)")
     other_cost: float = Field(default=0, description="기타비용 (원)")
     target_margin: float = Field(default=20.0, description="목표 마진율 (%)")
+    tax_rate: float = Field(default=0.0, description="부가세율 (%) - 0이면 미적용")
 
 
 class ItemCreate(BaseModel):
@@ -15,6 +16,8 @@ class ItemCreate(BaseModel):
     purchase_price: float = Field(..., ge=0, description="매입가 (원)")
     naver_price: Optional[float] = Field(default=None, ge=0, description="네이버 판매가 (원)")
     coupang_price: Optional[float] = Field(default=None, ge=0, description="쿠팡 판매가 (원)")
+    source: Optional[str] = Field(default="", description="소싱처")
+    url: Optional[str] = Field(default="", description="소싱 URL")
     memo: Optional[str] = Field(default="", description="메모")
 
 

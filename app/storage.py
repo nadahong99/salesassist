@@ -14,6 +14,7 @@ _DEFAULT_CONFIG = {
     "shipping_cost": 3000,
     "other_cost": 0,
     "target_margin": 20.0,
+    "tax_rate": 0.0,
 }
 
 
