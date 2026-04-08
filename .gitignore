@@ -13,6 +13,9 @@ build/
 venv/
 env/
 
+# Environment variables (never commit secrets)
+.env
+
 # Generated output
 output/*.xlsx
 output/*.png

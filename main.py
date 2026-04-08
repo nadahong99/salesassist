@@ -1,13 +1,33 @@
+import os
+
+from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
+
+load_dotenv()
 
 from app.models import Item, ItemCreate, Config, ReturnUpdate
 from app.storage import load_items, save_items, load_config, save_config, next_id
 from app.excel_export import export_naver, export_coupang
 
 app = FastAPI(title="SalesAssist")
+
+# ── CORS ──────────────────────────────────────────────────────────────────────
+# Allow origins specified via ALLOWED_ORIGINS env var (comma-separated),
+# falling back to all origins so the deployed app is reachable from any client.
+_raw_origins = os.getenv("ALLOWED_ORIGINS", "*")
+_origins = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 FRONTEND_DIR = Path(__file__).parent / "frontend"
 
@@ -101,4 +121,6 @@ def export_coupang_route():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    uvicorn.run("main:app", host=host, port=port, reload=False)

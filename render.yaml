@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: salesassist
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATA_DIR
+        value: /tmp/data
+      # Optionally restrict CORS to your frontend domain, e.g.:
+      # - key: ALLOWED_ORIGINS
+      #   value: https://your-app.vercel.app

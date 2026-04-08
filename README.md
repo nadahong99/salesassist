@@ -1,7 +1,7 @@
 # SalesAssist – 소싱/마진 계산기
 
-네이버·쿠팡 소싱 상품의 마진을 계산하고 엑셀로 내보낼 수 있는 로컬 웹 앱입니다.  
-Python + FastAPI 기반이며, 브라우저에서 바로 사용합니다.
+네이버·쿠팡 소싱 상품의 마진을 계산하고 엑셀로 내보낼 수 있는 웹 앱입니다.  
+Python + FastAPI 기반이며, **로컬 PC** 또는 **클라우드(Render 등)** 어디서나 실행 가능합니다.
 
 ---
 
@@ -19,7 +19,95 @@ Python + FastAPI 기반이며, 브라우저에서 바로 사용합니다.
 
 ---
 
-## 🚀 설치 및 실행 (윈도우 기준)
+## 🌐 로컬 vs 클라우드 – 차이점과 장단점
+
+| 항목 | 로컬 실행 (PC) | 클라우드 배포 (Render 등) |
+|------|--------------|--------------------------|
+| **서버 필요 여부** | ❌ PC에서 `python run_app.py` 실행 필요 | ✅ 상시 접속 가능 (서버 자동 실행) |
+| **외부 접속** | ❌ 같은 Wi-Fi 망에서만 가능 | ✅ 모바일·아이패드·LTE 등 어디서든 가능 |
+| **비용** | 무료 (PC 켜져 있어야 함) | 무료 플랜 제공 (Render free tier) |
+| **데이터 영속성** | ✅ PC 로컬 파일로 영구 저장 | ⚠️ 무료 플랜: 재시작 시 초기화 / 유료 플랜: 영구 디스크 가능 |
+| **설정 난이도** | 쉬움 (Python만 있으면 됨) | 중간 (GitHub 연동 후 클릭 몇 번) |
+| **URL** | `http://localhost:8000` | `https://앱이름.onrender.com` |
+| **추천 대상** | 개인 PC 전용 | 여러 기기, 외부 접속, 팀 공유 |
+
+---
+
+## ☁️ 클라우드 배포 (Render) – 상시 외부 접속
+
+> PC가 꺼져 있어도 24시간 접속 가능한 URL을 만드는 방법입니다.
+
+### 1단계: GitHub에 코드 올리기
+
+```bash
+# 최초 1회 – GitHub에 저장소 생성 후:
+git clone https://github.com/nadahong99/salesassist.git
+cd salesassist
+```
+
+이미 GitHub에 코드가 있다면 이 단계는 생략하세요.
+
+### 2단계: Render 배포
+
+1. [render.com](https://render.com) 에서 **GitHub 계정으로 가입/로그인**
+2. **New → Web Service** 클릭
+3. GitHub 저장소(`nadahong99/salesassist`) 연결
+4. 아래 설정 입력:
+
+| 항목 | 값 |
+|------|----|
+| **Build Command** | `pip install -r requirements.txt` |
+| **Start Command** | `uvicorn main:app --host 0.0.0.0 --port $PORT` |
+| **Instance Type** | Free |
+
+5. **Environment Variables** 탭에서 아래 추가:
+
+| Key | Value | 설명 |
+|-----|-------|------|
+| `DATA_DIR` | `/tmp/data` | 데이터 저장 경로 (무료 플랜: 재시작 시 초기화) |
+
+6. **Create Web Service** 클릭 → 2~3분 후 배포 완료
+
+7. 제공된 URL(`https://salesassist-xxxx.onrender.com`)로 모바일·아이패드·LTE 등 어디서든 접속 가능!
+
+> **💡 데이터 영구 저장이 필요하다면?**  
+> Render 유료 플랜에서 **Persistent Disk**를 추가하고 `DATA_DIR=/var/data`로 설정하세요.  
+> 무료 플랜은 인스턴스 재시작(약 15분 비활성 후) 시 `/tmp` 데이터가 초기화됩니다.
+
+### Render 재배포 (코드 업데이트 시)
+
+GitHub에 `git push`하면 Render가 자동으로 재배포합니다.
+
+```bash
+git add .
+git commit -m "업데이트 내용"
+git push origin main
+# → Render가 자동으로 감지하여 재배포 시작
+```
+
+---
+
+## 🔧 환경변수 설정
+
+`.env.example` 파일을 `.env`로 복사하여 로컬 개발에서 사용하세요:
+
+```bash
+cp .env.example .env
+```
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `HOST` | `0.0.0.0` | 서버 바인드 주소 |
+| `PORT` | `8000` | 서버 포트 |
+| `DATA_DIR` | `./data` | 데이터 저장 디렉토리 |
+| `ALLOWED_ORIGINS` | `*` | CORS 허용 출처 (`,`로 구분) |
+
+> ⚠️ `.env` 파일은 `.gitignore`에 포함되어 있으므로 GitHub에 올라가지 않습니다.  
+> 절대로 API 키나 비밀번호를 `.env`에 넣고 커밋하지 마세요.
+
+---
+
+## 🚀 로컬 설치 및 실행 (윈도우 기준)
 
 ### 1. 최초 1회 설치
 

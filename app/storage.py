@@ -1,9 +1,11 @@
 import json
+import os
 from pathlib import Path
 from typing import Any
 
-DATA_DIR = Path(__file__).parent.parent / "data"
-DATA_DIR.mkdir(exist_ok=True)
+_data_dir_env = os.getenv("DATA_DIR", "")
+DATA_DIR = Path(_data_dir_env) if _data_dir_env else Path(__file__).parent.parent / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 ITEMS_FILE = DATA_DIR / "items.json"
 CONFIG_FILE = DATA_DIR / "config.json"
