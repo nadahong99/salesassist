@@ -11,6 +11,24 @@ class Config(BaseModel):
     tax_rate: float = Field(default=0.0, description="부가세율 (%) - 0이면 미적용")
 
 
+class OrderCreate(BaseModel):
+    order_number: str = Field(..., description="주문번호")
+    customer_name: str = Field(..., description="고객명")
+    customer_phone: str = Field(default="", description="연락처")
+    customer_address: str = Field(default="", description="배송 주소")
+    product_name: str = Field(default="", description="상품명")
+    quantity: int = Field(default=1, ge=1, description="수량")
+    amount: float = Field(default=0, ge=0, description="결제금액 (원)")
+    payment_status: str = Field(default="미결제", description="결제 상태")
+    delivery_status: str = Field(default="주문접수", description="배송 상태")
+    order_date: str = Field(default="", description="주문일")
+    memo: str = Field(default="", description="메모")
+
+
+class Order(OrderCreate):
+    id: int
+
+
 class ReturnChecklist(BaseModel):
     refund_complete: bool = Field(default=False, description="환불 완료")
     customer_contact: bool = Field(default=False, description="고객 연락")

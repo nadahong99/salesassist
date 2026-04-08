@@ -7,6 +7,7 @@ DATA_DIR.mkdir(exist_ok=True)
 
 ITEMS_FILE = DATA_DIR / "items.json"
 CONFIG_FILE = DATA_DIR / "config.json"
+ORDERS_FILE = DATA_DIR / "orders.json"
 
 _DEFAULT_CONFIG = {
     "naver_commission": 3.5,
@@ -51,3 +52,11 @@ def next_id(items: list) -> int:
     if not items:
         return 1
     return max(it["id"] for it in items) + 1
+
+
+def load_orders() -> list:
+    return _read(ORDERS_FILE, [])
+
+
+def save_orders(orders: list) -> None:
+    _write(ORDERS_FILE, orders)

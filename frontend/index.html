@@ -131,6 +131,52 @@
     }
     .calc-result.show { display: block; }
     .calc-result span { font-weight: 700; }
+    .calc-tabs { display: flex; gap: 0; margin-bottom: 14px; }
+    .calc-tab {
+      flex: 1; padding: 7px 0; font-size: .88rem; font-weight: 600;
+      border: 1.5px solid #2563eb; background: #fff; color: #2563eb;
+      cursor: pointer; transition: background .15s, color .15s;
+    }
+    .calc-tab:first-child { border-radius: 7px 0 0 7px; }
+    .calc-tab:last-child  { border-radius: 0 7px 7px 0; border-left: none; }
+    .calc-tab.active { background: #2563eb; color: #fff; }
+    .calc-panel { display: none; }
+    .calc-panel.active { display: block; }
+    .recommended-price-box {
+      margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+      background: #f0fdf4; border: 1.5px solid #86efac;
+      font-size: .95rem; display: none;
+    }
+    .recommended-price-box.show { display: block; }
+
+    /* ── Order management ────────────────────────────────── */
+    .order-filter-bar {
+      display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; align-items: center;
+    }
+    .order-filter-bar select, .order-filter-bar input {
+      padding: 6px 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: .88rem;
+    }
+    .order-status-badge {
+      display: inline-block; padding: 2px 9px; border-radius: 10px;
+      font-size: .75rem; font-weight: 600; white-space: nowrap;
+    }
+    .status-pending   { background: #fef9c3; color: #854d0e; }
+    .status-paid      { background: #dcfce7; color: #15803d; }
+    .status-shipping  { background: #dbeafe; color: #1d4ed8; }
+    .status-delivered { background: #e0e7ff; color: #3730a3; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-returned  { background: #fce7f3; color: #9d174d; }
+    .order-form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .order-form-grid label { display: block; font-size: .78rem; color: #555; margin-bottom: 4px; }
+    .order-form-grid input, .order-form-grid select {
+      width: 100%; padding: 7px 10px; border: 1px solid #d1d5db;
+      border-radius: 6px; font-size: .9rem;
+    }
 
     /* ── Trend links ─────────────────────────────────────── */
     .link-grid {
@@ -234,24 +280,54 @@
   <!-- Quick profit calculator -->
   <div class="card">
     <h2>🧮 빠른 마진 계산기 (임시 계산용)</h2>
-    <div class="calc-grid">
-      <div class="calc-field">
-        <label>매입가 (원)</label>
-        <input type="number" id="qc_purchase" placeholder="0" min="0" oninput="calcQuick()" />
-      </div>
-      <div class="calc-field">
-        <label>판매가 (원)</label>
-        <input type="number" id="qc_sell" placeholder="0" min="0" oninput="calcQuick()" />
-      </div>
-      <div class="calc-field">
-        <label>플랫폼</label>
-        <select id="qc_platform" onchange="calcQuick()">
-          <option value="naver">네이버</option>
-          <option value="coupang">쿠팡</option>
-        </select>
-      </div>
+    <div class="calc-tabs">
+      <button class="calc-tab active" onclick="switchCalcTab('margin')">📊 마진율 계산</button>
+      <button class="calc-tab" onclick="switchCalcTab('price')">💡 추천 판매가 계산</button>
     </div>
-    <div class="calc-result" id="calcResult"></div>
+
+    <!-- 마진율 계산 패널 -->
+    <div class="calc-panel active" id="calcPanelMargin">
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label>매입가 (원)</label>
+          <input type="number" id="qc_purchase" placeholder="0" min="0" oninput="calcQuick()" />
+        </div>
+        <div class="calc-field">
+          <label>판매가 (원)</label>
+          <input type="number" id="qc_sell" placeholder="0" min="0" oninput="calcQuick()" />
+        </div>
+        <div class="calc-field">
+          <label>플랫폼</label>
+          <select id="qc_platform" onchange="calcQuick()">
+            <option value="naver">네이버</option>
+            <option value="coupang">쿠팡</option>
+          </select>
+        </div>
+      </div>
+      <div class="calc-result" id="calcResult"></div>
+    </div>
+
+    <!-- 추천 판매가 계산 패널 -->
+    <div class="calc-panel" id="calcPanelPrice">
+      <div class="calc-grid">
+        <div class="calc-field">
+          <label>매입가 (원)</label>
+          <input type="number" id="rp_purchase" placeholder="0" min="0" oninput="calcRecommendedPrice()" />
+        </div>
+        <div class="calc-field">
+          <label>목표 마진율 (%)</label>
+          <input type="number" id="rp_margin" placeholder="20" min="0" max="100" step="0.5" oninput="calcRecommendedPrice()" />
+        </div>
+        <div class="calc-field">
+          <label>플랫폼</label>
+          <select id="rp_platform" onchange="calcRecommendedPrice()">
+            <option value="naver">네이버</option>
+            <option value="coupang">쿠팡</option>
+          </select>
+        </div>
+      </div>
+      <div class="recommended-price-box" id="recommendedPriceResult"></div>
+    </div>
   </div>
 
   <!-- Keyword / trend links -->
@@ -327,15 +403,17 @@
       </div>
       <div>
         <label>매입가 (원) *</label>
-        <input type="number" id="f_purchase_price" placeholder="0" min="0" />
+        <input type="number" id="f_purchase_price" placeholder="0" min="0" oninput="updateAddFormSuggest()" />
       </div>
       <div>
         <label>네이버 판매가 (원)</label>
         <input type="number" id="f_naver_price" placeholder="0" min="0" />
+        <div id="f_naver_suggest" style="font-size:.75rem;color:#15803d;margin-top:3px;display:none"></div>
       </div>
       <div>
         <label>쿠팡 판매가 (원)</label>
         <input type="number" id="f_coupang_price" placeholder="0" min="0" />
+        <div id="f_coupang_suggest" style="font-size:.75rem;color:#15803d;margin-top:3px;display:none"></div>
       </div>
       <div>
         <label>소싱처</label>
@@ -383,6 +461,119 @@
     <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 엑셀</button>
       <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 엑셀</button>
+    </div>
+  </div>
+
+  <!-- Order management -->
+  <div class="card">
+    <h2>📦 주문/고객 정보 관리</h2>
+    <!-- Add order form -->
+    <details id="orderFormDetails" style="margin-bottom:14px;">
+      <summary style="cursor:pointer;font-size:.9rem;font-weight:600;color:#2563eb;padding:6px 0;user-select:none;">
+        ➕ 주문 등록하기
+      </summary>
+      <div style="margin-top:12px;">
+        <div class="order-form-grid">
+          <div>
+            <label>주문번호 *</label>
+            <input type="text" id="o_order_number" placeholder="주문번호" />
+          </div>
+          <div>
+            <label>고객명 *</label>
+            <input type="text" id="o_customer_name" placeholder="고객명" />
+          </div>
+          <div>
+            <label>연락처</label>
+            <input type="text" id="o_customer_phone" placeholder="010-0000-0000" />
+          </div>
+          <div>
+            <label>상품명</label>
+            <input type="text" id="o_product_name" placeholder="상품명" />
+          </div>
+          <div>
+            <label>수량</label>
+            <input type="number" id="o_quantity" placeholder="1" min="1" value="1" />
+          </div>
+          <div>
+            <label>결제금액 (원)</label>
+            <input type="number" id="o_amount" placeholder="0" min="0" />
+          </div>
+          <div>
+            <label>결제 상태</label>
+            <select id="o_payment_status">
+              <option value="미결제">미결제</option>
+              <option value="결제완료">결제완료</option>
+              <option value="결제취소">결제취소</option>
+            </select>
+          </div>
+          <div>
+            <label>배송 상태</label>
+            <select id="o_delivery_status">
+              <option value="주문접수">주문접수</option>
+              <option value="상품준비중">상품준비중</option>
+              <option value="배송중">배송중</option>
+              <option value="배송완료">배송완료</option>
+              <option value="취소">취소</option>
+              <option value="반품">반품</option>
+            </select>
+          </div>
+          <div>
+            <label>주문일</label>
+            <input type="date" id="o_order_date" />
+          </div>
+          <div>
+            <label>메모</label>
+            <input type="text" id="o_memo" placeholder="메모" />
+          </div>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">배송 주소</label>
+          <input type="text" id="o_customer_address" placeholder="배송 주소" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;margin-bottom:10px;" />
+        </div>
+        <button class="btn btn-success" onclick="addOrder()">주문 등록</button>
+      </div>
+    </details>
+
+    <!-- Filter bar -->
+    <div class="order-filter-bar">
+      <input type="text" id="order_search" placeholder="🔍 고객명·주문번호·상품명 검색" style="min-width:200px;" oninput="renderOrders()" />
+      <select id="order_filter_payment" onchange="renderOrders()">
+        <option value="">결제상태 전체</option>
+        <option value="미결제">미결제</option>
+        <option value="결제완료">결제완료</option>
+        <option value="결제취소">결제취소</option>
+      </select>
+      <select id="order_filter_delivery" onchange="renderOrders()">
+        <option value="">배송상태 전체</option>
+        <option value="주문접수">주문접수</option>
+        <option value="상품준비중">상품준비중</option>
+        <option value="배송중">배송중</option>
+        <option value="배송완료">배송완료</option>
+        <option value="취소">취소</option>
+        <option value="반품">반품</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table id="orderTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>주문번호</th>
+            <th>고객명</th>
+            <th>연락처</th>
+            <th>상품명</th>
+            <th>수량</th>
+            <th>결제금액</th>
+            <th>결제상태</th>
+            <th>배송상태</th>
+            <th>주문일</th>
+            <th>메모</th>
+            <th>관리</th>
+          </tr>
+        </thead>
+        <tbody id="orderBody"></tbody>
+      </table>
     </div>
   </div>
 </div>
@@ -445,16 +636,57 @@
   </div>
 </div>
 
+<!-- Order edit modal -->
+<div class="modal-overlay" id="orderEditModal">
+  <div class="modal" style="width:560px">
+    <h3>✏️ 주문 수정</h3>
+    <input type="hidden" id="oedit_id" />
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div class="modal-field"><label>주문번호</label><input type="text" id="oedit_order_number" /></div>
+      <div class="modal-field"><label>고객명</label><input type="text" id="oedit_customer_name" /></div>
+      <div class="modal-field"><label>연락처</label><input type="text" id="oedit_customer_phone" /></div>
+      <div class="modal-field"><label>상품명</label><input type="text" id="oedit_product_name" /></div>
+      <div class="modal-field"><label>수량</label><input type="number" id="oedit_quantity" min="1" /></div>
+      <div class="modal-field"><label>결제금액 (원)</label><input type="number" id="oedit_amount" min="0" /></div>
+      <div class="modal-field"><label>결제 상태</label>
+        <select id="oedit_payment_status" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;">
+          <option value="미결제">미결제</option>
+          <option value="결제완료">결제완료</option>
+          <option value="결제취소">결제취소</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>배송 상태</label>
+        <select id="oedit_delivery_status" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;">
+          <option value="주문접수">주문접수</option>
+          <option value="상품준비중">상품준비중</option>
+          <option value="배송중">배송중</option>
+          <option value="배송완료">배송완료</option>
+          <option value="취소">취소</option>
+          <option value="반품">반품</option>
+        </select>
+      </div>
+      <div class="modal-field"><label>주문일</label><input type="date" id="oedit_order_date" /></div>
+      <div class="modal-field"><label>메모</label><input type="text" id="oedit_memo" /></div>
+    </div>
+    <div class="modal-field" style="margin-top:4px;"><label>배송 주소</label><input type="text" id="oedit_customer_address" /></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeOrderModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveOrderEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script>
   let config = {};
   let items = [];
+  let orders = [];
 
   // ── Init ─────────────────────────────────────────────────
   async function init() {
     await loadConfig();
-    await loadItems();
+    await Promise.all([loadItems(), loadOrders()]);
   }
 
   // ── Config ───────────────────────────────────────────────
@@ -483,8 +715,19 @@
       config = await res.json();
       renderItems();
       calcQuick();
+      calcRecommendedPrice();
+      updateAddFormSuggest();
       toast('설정이 저장되었습니다.');
     }
+  }
+
+  // ── Calculator tab switch ─────────────────────────────────
+  function switchCalcTab(tab) {
+    document.querySelectorAll('.calc-tab').forEach((el, i) => {
+      el.classList.toggle('active', (i === 0 && tab === 'margin') || (i === 1 && tab === 'price'));
+    });
+    document.getElementById('calcPanelMargin').classList.toggle('active', tab === 'margin');
+    document.getElementById('calcPanelPrice').classList.toggle('active', tab === 'price');
   }
 
   // ── Quick calculator ──────────────────────────────────────
@@ -514,6 +757,76 @@
       <small style="color:#64748b;margin-left:12px">(수수료 ${Math.round(commission).toLocaleString()}원 / 배송비 ${shipping.toLocaleString()}원 / 기타 ${other.toLocaleString()}원${tax > 0 ? ` / 부가세 ${Math.round(taxAmt).toLocaleString()}원` : ''})</small>
     `;
     el.classList.add('show');
+  }
+
+  // ── Recommended price calculator ──────────────────────────
+  // sell = (purchase + shipping + other) / (1 - commission% - margin% - tax%)
+  function calcRecommendedPrice() {
+    const purchase = parseFloat(document.getElementById('rp_purchase').value) || 0;
+    const marginPct = parseFloat(document.getElementById('rp_margin').value);
+    const platform = document.getElementById('rp_platform').value;
+    const el = document.getElementById('recommendedPriceResult');
+
+    const targetMargin = isNaN(marginPct) ? (config.target_margin || 20) : marginPct;
+    document.getElementById('rp_margin').placeholder = String(config.target_margin || 20);
+
+    if (!purchase) { el.classList.remove('show'); return; }
+
+    const commPct = config[`${platform}_commission`] || 0;
+    const shipping = config.shipping_cost || 0;
+    const other = config.other_cost || 0;
+    const tax = config.tax_rate || 0;
+
+    const divisor = 1 - (commPct + targetMargin + tax) / 100;
+    if (divisor <= 0) {
+      el.innerHTML = '<span style="color:#991b1b">수수료+마진+부가세의 합이 100% 이상이면 계산이 불가합니다.</span>';
+      el.classList.add('show');
+      return;
+    }
+    const sellPrice = Math.ceil((purchase + shipping + other) / divisor);
+    const commission = sellPrice * commPct / 100;
+    const taxAmt = sellPrice * tax / 100;
+    const profit = sellPrice - purchase - commission - shipping - other - taxAmt;
+    const actualMargin = (profit / sellPrice * 100).toFixed(1);
+
+    el.innerHTML = `
+      💡 추천 판매가: <span style="color:#1d4ed8;font-size:1.1rem">${sellPrice.toLocaleString()}원</span>
+      &nbsp;→&nbsp; 마진: <span style="color:#15803d">${Math.round(profit).toLocaleString()}원 (${actualMargin}%)</span>
+      <small style="color:#64748b;display:block;margin-top:4px">매입 ${purchase.toLocaleString()} + 배송 ${shipping.toLocaleString()} + 기타 ${other.toLocaleString()} + 수수료 ${Math.round(commission).toLocaleString()}${tax > 0 ? ` + 부가세 ${Math.round(taxAmt).toLocaleString()}` : ''}</small>
+    `;
+    el.classList.add('show');
+  }
+
+  // ── Add-form suggest price helper ─────────────────────────
+  function _suggestPrice(purchase, commPct) {
+    const shipping = config.shipping_cost || 0;
+    const other = config.other_cost || 0;
+    const tax = config.tax_rate || 0;
+    const targetMargin = config.target_margin || 20;
+    const divisor = 1 - (commPct + targetMargin + tax) / 100;
+    if (divisor <= 0 || !purchase) return null;
+    return Math.ceil((purchase + shipping + other) / divisor);
+  }
+
+  function updateAddFormSuggest() {
+    const purchase = parseFloat(document.getElementById('f_purchase_price').value) || 0;
+    const nEl = document.getElementById('f_naver_suggest');
+    const cEl = document.getElementById('f_coupang_suggest');
+    if (!purchase) {
+      nEl.style.display = 'none';
+      cEl.style.display = 'none';
+      return;
+    }
+    const nSuggest = _suggestPrice(purchase, config.naver_commission || 0);
+    const cSuggest = _suggestPrice(purchase, config.coupang_commission || 0);
+    if (nSuggest) {
+      nEl.textContent = `💡 추천: ${nSuggest.toLocaleString()}원`;
+      nEl.style.display = 'block';
+    }
+    if (cSuggest) {
+      cEl.textContent = `💡 추천: ${cSuggest.toLocaleString()}원`;
+      cEl.style.display = 'block';
+    }
   }
 
   // ── Items ────────────────────────────────────────────────
@@ -745,6 +1058,158 @@
   document.getElementById('editModal').addEventListener('click', function(e) {
     if (e.target === this) closeModal();
   });
+
+  document.getElementById('orderEditModal').addEventListener('click', function(e) {
+    if (e.target === this) closeOrderModal();
+  });
+
+  // ── Orders ───────────────────────────────────────────────
+  async function loadOrders() {
+    const res = await fetch('/api/orders');
+    orders = await res.json();
+    renderOrders();
+  }
+
+  function _deliveryStatusClass(status) {
+    const map = {
+      '미결제': 'status-pending',
+      '결제완료': 'status-paid',
+      '결제취소': 'status-cancelled',
+      '주문접수': 'status-pending',
+      '상품준비중': 'status-pending',
+      '배송중': 'status-shipping',
+      '배송완료': 'status-delivered',
+      '취소': 'status-cancelled',
+      '반품': 'status-returned',
+    };
+    return map[status] || '';
+  }
+
+  function renderOrders() {
+    const tbody = document.getElementById('orderBody');
+    tbody.innerHTML = '';
+    const search = (document.getElementById('order_search').value || '').toLowerCase();
+    const filterPayment = document.getElementById('order_filter_payment').value;
+    const filterDelivery = document.getElementById('order_filter_delivery').value;
+
+    const filtered = orders.filter(o => {
+      const matchSearch = !search || [o.order_number, o.customer_name, o.product_name, o.memo].some(
+        v => v && v.toLowerCase().includes(search)
+      );
+      const matchPayment = !filterPayment || o.payment_status === filterPayment;
+      const matchDelivery = !filterDelivery || o.delivery_status === filterDelivery;
+      return matchSearch && matchPayment && matchDelivery;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="12" style="color:#9ca3af;padding:24px">등록된 주문이 없습니다.</td></tr>';
+      return;
+    }
+    filtered.forEach((order, idx) => {
+      const tr = document.createElement('tr');
+      const payClass = _deliveryStatusClass(order.payment_status);
+      const delClass = _deliveryStatusClass(order.delivery_status);
+      tr.innerHTML = `
+        <td>${idx + 1}</td>
+        <td style="font-family:monospace;font-size:.82rem">${esc(order.order_number)}</td>
+        <td>${esc(order.customer_name)}</td>
+        <td style="font-size:.83rem">${esc(order.customer_phone || '')}</td>
+        <td class="name-cell" title="${esc(order.product_name || '')}">${esc(order.product_name || '')}</td>
+        <td>${order.quantity}</td>
+        <td>${order.amount ? Number(order.amount).toLocaleString() + '원' : '-'}</td>
+        <td><span class="order-status-badge ${payClass}">${esc(order.payment_status)}</span></td>
+        <td><span class="order-status-badge ${delClass}">${esc(order.delivery_status)}</span></td>
+        <td style="font-size:.82rem">${esc(order.order_date || '')}</td>
+        <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(order.memo || '')}">${esc(order.memo || '')}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn btn-outline" style="padding:4px 10px;font-size:.8rem" onclick="openOrderEdit(${order.id})">수정</button>
+            <button class="btn btn-danger"  style="padding:4px 10px;font-size:.8rem" onclick="deleteOrder(${order.id})">삭제</button>
+          </div>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  async function addOrder() {
+    const order_number = document.getElementById('o_order_number').value.trim();
+    const customer_name = document.getElementById('o_customer_name').value.trim();
+    if (!order_number || !customer_name) { toast('주문번호와 고객명은 필수입니다.', true); return; }
+    const body = {
+      order_number,
+      customer_name,
+      customer_phone: document.getElementById('o_customer_phone').value.trim(),
+      customer_address: document.getElementById('o_customer_address').value.trim(),
+      product_name: document.getElementById('o_product_name').value.trim(),
+      quantity: parseInt(document.getElementById('o_quantity').value) || 1,
+      amount: parseFloat(document.getElementById('o_amount').value) || 0,
+      payment_status: document.getElementById('o_payment_status').value,
+      delivery_status: document.getElementById('o_delivery_status').value,
+      order_date: document.getElementById('o_order_date').value,
+      memo: document.getElementById('o_memo').value.trim(),
+    };
+    const res = await fetch('/api/orders', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      ['o_order_number','o_customer_name','o_customer_phone','o_customer_address','o_product_name','o_amount','o_order_date','o_memo'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('o_quantity').value = '1';
+      document.getElementById('o_payment_status').value = '미결제';
+      document.getElementById('o_delivery_status').value = '주문접수';
+      document.getElementById('orderFormDetails').removeAttribute('open');
+      await loadOrders();
+      toast('주문이 등록되었습니다.');
+    }
+  }
+
+  async function deleteOrder(id) {
+    if (!confirm('주문을 삭제하시겠습니까?')) return;
+    await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+    await loadOrders();
+    toast('주문이 삭제되었습니다.');
+  }
+
+  function openOrderEdit(id) {
+    const order = orders.find(o => o.id === id);
+    if (!order) return;
+    document.getElementById('oedit_id').value = order.id;
+    document.getElementById('oedit_order_number').value = order.order_number;
+    document.getElementById('oedit_customer_name').value = order.customer_name;
+    document.getElementById('oedit_customer_phone').value = order.customer_phone || '';
+    document.getElementById('oedit_customer_address').value = order.customer_address || '';
+    document.getElementById('oedit_product_name').value = order.product_name || '';
+    document.getElementById('oedit_quantity').value = order.quantity || 1;
+    document.getElementById('oedit_amount').value = order.amount || '';
+    document.getElementById('oedit_payment_status').value = order.payment_status || '미결제';
+    document.getElementById('oedit_delivery_status').value = order.delivery_status || '주문접수';
+    document.getElementById('oedit_order_date').value = order.order_date || '';
+    document.getElementById('oedit_memo').value = order.memo || '';
+    document.getElementById('orderEditModal').classList.add('open');
+  }
+
+  function closeOrderModal() { document.getElementById('orderEditModal').classList.remove('open'); }
+
+  async function saveOrderEdit() {
+    const id = parseInt(document.getElementById('oedit_id').value);
+    const body = {
+      order_number: document.getElementById('oedit_order_number').value.trim(),
+      customer_name: document.getElementById('oedit_customer_name').value.trim(),
+      customer_phone: document.getElementById('oedit_customer_phone').value.trim(),
+      customer_address: document.getElementById('oedit_customer_address').value.trim(),
+      product_name: document.getElementById('oedit_product_name').value.trim(),
+      quantity: parseInt(document.getElementById('oedit_quantity').value) || 1,
+      amount: parseFloat(document.getElementById('oedit_amount').value) || 0,
+      payment_status: document.getElementById('oedit_payment_status').value,
+      delivery_status: document.getElementById('oedit_delivery_status').value,
+      order_date: document.getElementById('oedit_order_date').value,
+      memo: document.getElementById('oedit_memo').value.trim(),
+    };
+    if (!body.order_number || !body.customer_name) { toast('주문번호와 고객명은 필수입니다.', true); return; }
+    const res = await fetch(`/api/orders/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      closeOrderModal();
+      await loadOrders();
+      toast('주문이 수정되었습니다.');
+    }
+  }
 
   init();
 </script>
