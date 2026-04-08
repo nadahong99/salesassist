@@ -150,6 +150,29 @@
     .link-item .icon { font-size: 1.2rem; flex-shrink: 0; }
     .link-desc { font-size: .75rem; color: #64748b; margin-top: 2px; }
 
+    /* ── Return checklist ────────────────────────────────── */
+    .return-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 12px;
+      font-size: .75rem; font-weight: 600; cursor: pointer;
+      white-space: nowrap;
+    }
+    .return-badge.none { background: #f1f5f9; color: #64748b; border: 1px solid #e2e8f0; }
+    .return-badge.none:hover { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .return-badge.occurred { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .return-badge.occurred:hover { background: #fecaca; }
+    .return-checklist-items { margin-top: 12px; display: none; }
+    .return-checklist-items.show { display: block; }
+    .checklist-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; margin-bottom: 6px;
+      border-radius: 7px; background: #f8fafc; border: 1px solid #e2e8f0;
+      cursor: pointer; transition: background .12s;
+    }
+    .checklist-item:hover { background: #eff6ff; border-color: #93c5fd; }
+    .checklist-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
+    .checklist-item label { font-size: .9rem; cursor: pointer; flex: 1; }
+    .checklist-item.done label { text-decoration: line-through; color: #6b7280; }
+
     /* ── Toast ───────────────────────────────────────────── */
     #toast {
       position: fixed; bottom: 24px; right: 24px;
@@ -349,6 +372,7 @@
             <th>쿠팡 판매가</th>
             <th>쿠팡 마진율</th>
             <th>메모</th>
+            <th>반품</th>
             <th>관리</th>
           </tr>
         </thead>
@@ -359,6 +383,45 @@
     <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
       <button class="btn btn-outline" onclick="exportExcel('naver')">📥 네이버 엑셀</button>
       <button class="btn btn-outline" onclick="exportExcel('coupang')">📥 쿠팡 엑셀</button>
+    </div>
+  </div>
+</div>
+
+<!-- Return checklist modal -->
+<div class="modal-overlay" id="returnModal">
+  <div class="modal" style="width:480px">
+    <h3>🔄 반품 체크리스트</h3>
+    <p id="returnItemName" style="font-size:.88rem;color:#64748b;margin-bottom:14px;"></p>
+    <input type="hidden" id="return_item_id" />
+
+    <div class="checklist-item" id="returnOccurredRow" onclick="toggleReturnOccurred()">
+      <input type="checkbox" id="chk_return_occurred" onclick="event.stopPropagation();toggleReturnOccurred()" />
+      <label for="chk_return_occurred" style="font-weight:600;color:#991b1b">⚠️ 반품 발생</label>
+    </div>
+
+    <div class="return-checklist-items" id="returnSubChecklist">
+      <p style="font-size:.78rem;color:#6b7280;margin-bottom:8px;padding-left:4px">반품 처리 후속 조치 — 완료 항목을 체크하세요</p>
+      <div class="checklist-item" id="ci_refund_complete" onclick="toggleChecklistItem('refund_complete')">
+        <input type="checkbox" id="chk_refund_complete" onclick="event.stopPropagation();toggleChecklistItem('refund_complete')" />
+        <label for="chk_refund_complete">💰 환불 완료</label>
+      </div>
+      <div class="checklist-item" id="ci_customer_contact" onclick="toggleChecklistItem('customer_contact')">
+        <input type="checkbox" id="chk_customer_contact" onclick="event.stopPropagation();toggleChecklistItem('customer_contact')" />
+        <label for="chk_customer_contact">📞 고객 연락</label>
+      </div>
+      <div class="checklist-item" id="ci_stock_updated" onclick="toggleChecklistItem('stock_updated')">
+        <input type="checkbox" id="chk_stock_updated" onclick="event.stopPropagation();toggleChecklistItem('stock_updated')" />
+        <label for="chk_stock_updated">📦 재고 반영</label>
+      </div>
+      <div class="checklist-item" id="ci_shipping_fee_handled" onclick="toggleChecklistItem('shipping_fee_handled')">
+        <input type="checkbox" id="chk_shipping_fee_handled" onclick="event.stopPropagation();toggleChecklistItem('shipping_fee_handled')" />
+        <label for="chk_shipping_fee_handled">🚚 배송비 처리</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeReturnModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveReturnChecklist()">저장</button>
     </div>
   </div>
 </div>
@@ -483,7 +546,7 @@
     const tbody = document.getElementById('itemBody');
     tbody.innerHTML = '';
     if (items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="11" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
       return;
     }
     items.forEach((item, idx) => {
@@ -492,6 +555,15 @@
       const sourceCell = item.url
         ? `<a class="url-link" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" title="${esc(item.url)}">${esc(item.source || item.url)}</a>`
         : esc(item.source || '');
+      const returnOccurred = item.return_occurred || false;
+      const checklist = item.return_checklist || {};
+      const doneCount = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled'].filter(k => checklist[k]).length;
+      let returnCell;
+      if (returnOccurred) {
+        returnCell = `<span class="return-badge occurred" onclick="openReturnModal(${item.id})" title="반품 체크리스트 열기">⚠️ 반품 (${doneCount}/4)</span>`;
+      } else {
+        returnCell = `<span class="return-badge none" onclick="openReturnModal(${item.id})" title="반품 체크리스트 열기">반품 등록</span>`;
+      }
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${idx + 1}</td>
@@ -503,6 +575,7 @@
         <td>${fmt(item.coupang_price)}</td>
         <td class="${marginClass(cm)}">${cm !== null ? cm + '%' : '-'}</td>
         <td>${esc(item.memo || '')}</td>
+        <td>${returnCell}</td>
         <td>
           <div class="action-btns">
             <button class="btn btn-outline" style="padding:4px 10px;font-size:.8rem" onclick="openEdit(${item.id})">수정</button>
@@ -581,6 +654,78 @@
   function exportExcel(platform) {
     window.location.href = `/api/export/${platform}`;
   }
+
+  // ── Return checklist ─────────────────────────────────────
+  let _returnModalChecklist = {};
+
+  function openReturnModal(id) {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
+    document.getElementById('return_item_id').value = id;
+    document.getElementById('returnItemName').textContent = item.name;
+    const occurred = item.return_occurred || false;
+    const checklist = item.return_checklist || {};
+    _returnModalChecklist = {
+      refund_complete: checklist.refund_complete || false,
+      customer_contact: checklist.customer_contact || false,
+      stock_updated: checklist.stock_updated || false,
+      shipping_fee_handled: checklist.shipping_fee_handled || false,
+    };
+    document.getElementById('chk_return_occurred').checked = occurred;
+    _syncReturnSubChecklist(occurred);
+    document.getElementById('returnModal').classList.add('open');
+  }
+
+  function _syncReturnSubChecklist(occurred) {
+    document.getElementById('returnSubChecklist').classList.toggle('show', occurred);
+    document.getElementById('returnOccurredRow').classList.toggle('done', occurred);
+    const keys = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled'];
+    keys.forEach(k => {
+      document.getElementById('chk_' + k).checked = _returnModalChecklist[k] || false;
+      document.getElementById('ci_' + k).classList.toggle('done', _returnModalChecklist[k] || false);
+    });
+  }
+
+  function toggleReturnOccurred() {
+    const chk = document.getElementById('chk_return_occurred');
+    chk.checked = !chk.checked;
+    if (!chk.checked) {
+      // Clear sub-checklist when return is unchecked
+      _returnModalChecklist = { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false };
+    }
+    _syncReturnSubChecklist(chk.checked);
+  }
+
+  function toggleChecklistItem(key) {
+    _returnModalChecklist[key] = !_returnModalChecklist[key];
+    document.getElementById('chk_' + key).checked = _returnModalChecklist[key];
+    document.getElementById('ci_' + key).classList.toggle('done', _returnModalChecklist[key]);
+  }
+
+  async function saveReturnChecklist() {
+    const id = parseInt(document.getElementById('return_item_id').value);
+    const occurred = document.getElementById('chk_return_occurred').checked;
+    const body = {
+      return_occurred: occurred,
+      return_checklist: occurred ? _returnModalChecklist : { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false },
+    };
+    const res = await fetch(`/api/items/${id}/return`, {
+      method: 'PATCH',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (res.ok) {
+      closeReturnModal();
+      await loadItems();
+      toast(occurred ? '반품 체크리스트가 저장되었습니다.' : '반품 정보가 초기화되었습니다.');
+    }
+  }
+
+  function closeReturnModal() { document.getElementById('returnModal').classList.remove('open'); }
+
+  document.getElementById('returnModal').addEventListener('click', function(e) {
+    if (e.target === this) closeReturnModal();
+  });
 
   // ── Helpers ──────────────────────────────────────────────
   function esc(s) {

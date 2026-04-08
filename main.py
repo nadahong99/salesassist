@@ -3,7 +3,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
 
-from app.models import Item, ItemCreate, Config
+from app.models import Item, ItemCreate, Config, ReturnUpdate
 from app.storage import load_items, save_items, load_config, save_config, next_id
 from app.excel_export import export_naver, export_coupang
 
@@ -52,7 +52,24 @@ def update_item(item_id: int, item: ItemCreate):
     items = load_items()
     for i, existing in enumerate(items):
         if existing["id"] == item_id:
-            items[i] = {"id": item_id, **item.model_dump()}
+            updated = {"id": item_id, **item.model_dump()}
+            # Preserve return checklist managed via PATCH /return endpoint
+            updated["return_occurred"] = existing.get("return_occurred", False)
+            updated["return_checklist"] = existing.get("return_checklist", {})
+            items[i] = updated
+            save_items(items)
+            return items[i]
+    raise HTTPException(status_code=404, detail="Item not found")
+
+
+@app.patch("/api/items/{item_id}/return")
+def update_return(item_id: int, update: ReturnUpdate):
+    items = load_items()
+    for i, existing in enumerate(items):
+        if existing["id"] == item_id:
+            existing["return_occurred"] = update.return_occurred
+            existing["return_checklist"] = update.return_checklist.model_dump()
+            items[i] = existing
             save_items(items)
             return items[i]
     raise HTTPException(status_code=404, detail="Item not found")

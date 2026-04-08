@@ -11,6 +11,18 @@ class Config(BaseModel):
     tax_rate: float = Field(default=0.0, description="부가세율 (%) - 0이면 미적용")
 
 
+class ReturnChecklist(BaseModel):
+    refund_complete: bool = Field(default=False, description="환불 완료")
+    customer_contact: bool = Field(default=False, description="고객 연락")
+    stock_updated: bool = Field(default=False, description="재고 반영")
+    shipping_fee_handled: bool = Field(default=False, description="배송비 처리")
+
+
+class ReturnUpdate(BaseModel):
+    return_occurred: bool = Field(default=False, description="반품 발생 여부")
+    return_checklist: ReturnChecklist = Field(default_factory=ReturnChecklist, description="반품 체크리스트")
+
+
 class ItemCreate(BaseModel):
     name: str = Field(..., description="상품명")
     purchase_price: float = Field(..., ge=0, description="매입가 (원)")
@@ -19,6 +31,8 @@ class ItemCreate(BaseModel):
     source: Optional[str] = Field(default="", description="소싱처")
     url: Optional[str] = Field(default="", description="소싱 URL")
     memo: Optional[str] = Field(default="", description="메모")
+    return_occurred: bool = Field(default=False, description="반품 발생 여부")
+    return_checklist: ReturnChecklist = Field(default_factory=ReturnChecklist, description="반품 체크리스트")
 
 
 class Item(ItemCreate):

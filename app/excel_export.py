@@ -45,6 +45,11 @@ def _build_df(items: list, config: dict, platform: str) -> pd.DataFrame:
             "마진(원)": round(sell_price - purchase_price - commission_amt - shipping_cost - other_cost - tax_amt, 0),
             "마진율(%)": margin,
             "메모": item.get("memo", ""),
+            "반품 발생": "Y" if item.get("return_occurred", False) else "",
+            "환불 완료": "Y" if item.get("return_checklist", {}).get("refund_complete", False) else "",
+            "고객 연락": "Y" if item.get("return_checklist", {}).get("customer_contact", False) else "",
+            "재고 반영": "Y" if item.get("return_checklist", {}).get("stock_updated", False) else "",
+            "배송비 처리": "Y" if item.get("return_checklist", {}).get("shipping_fee_handled", False) else "",
         })
     return pd.DataFrame(rows)
 
