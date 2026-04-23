@@ -18,6 +18,14 @@ _DEFAULT_CONFIG = {
     "tax_rate": 0.0,
 }
 
+# 상품 데이터 기본값 (신규 필드의 하위 호환성 보장)
+_ITEM_DEFAULTS = {
+    "source_type": "해외",
+    "wholesale_price": None,
+    "min_order_qty": None,
+    "has_customs_tax": False,
+}
+
 
 def _read(path: Path, default: Any) -> Any:
     if not path.exists():
@@ -32,7 +40,17 @@ def _write(path: Path, data: Any) -> None:
 
 
 def load_items() -> list:
-    return _read(ITEMS_FILE, [])
+    items = _read(ITEMS_FILE, [])
+    # 기존 데이터에 신규 필드 기본값 보완 (하위 호환)
+    for item in items:
+        for key, default in _ITEM_DEFAULTS.items():
+            if key not in item:
+                item[key] = default
+        checklist = item.get("return_checklist", {})
+        if "tax_invoice_issued" not in checklist:
+            checklist["tax_invoice_issued"] = False
+        item["return_checklist"] = checklist
+    return items
 
 
 def save_items(items: list) -> None:

@@ -34,8 +34,12 @@ def _build_df(items: list, config: dict, platform: str) -> pd.DataFrame:
         margin = _margin(sell_price, purchase_price, commission_pct, shipping_cost, other_cost, tax_rate)
         rows.append({
             "상품명": item.get("name", ""),
+            "소싱처 종류": item.get("source_type", "해외"),
             "소싱처": item.get("source", ""),
             "소싱 URL": item.get("url", ""),
+            "최저가/도매가": item.get("wholesale_price") or "",
+            "최소주문수량": item.get("min_order_qty") or "",
+            "관부가세": "Y" if item.get("has_customs_tax", False) else "",
             "매입가": purchase_price,
             "판매가": sell_price,
             f"수수료({commission_pct}%)": commission_amt,
@@ -50,6 +54,7 @@ def _build_df(items: list, config: dict, platform: str) -> pd.DataFrame:
             "고객 연락": "Y" if item.get("return_checklist", {}).get("customer_contact", False) else "",
             "재고 반영": "Y" if item.get("return_checklist", {}).get("stock_updated", False) else "",
             "배송비 처리": "Y" if item.get("return_checklist", {}).get("shipping_fee_handled", False) else "",
+            "세금계산서": "Y" if item.get("return_checklist", {}).get("tax_invoice_issued", False) else "",
         })
     return pd.DataFrame(rows)
 

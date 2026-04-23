@@ -390,6 +390,34 @@
           <div class="link-desc">국내 검색 관심도 분석</div>
         </div>
       </a>
+      <a class="link-item" href="https://www.domeggook.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🇰🇷</span>
+        <div>
+          <div>도매꾹</div>
+          <div class="link-desc">국내 소액·소량 도매 소싱</div>
+        </div>
+      </a>
+      <a class="link-item" href="https://www.sipsamo.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">📦</span>
+        <div>
+          <div>사입삼촌</div>
+          <div class="link-desc">국내 도매 사입 플랫폼</div>
+        </div>
+      </a>
+      <a class="link-item" href="https://www.ownerclan.com" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🏬</span>
+        <div>
+          <div>오너클랜</div>
+          <div class="link-desc">국내 도매 위탁·드롭쉬핑</div>
+        </div>
+      </a>
+      <a class="link-item" href="https://www.kmall24.co.kr" target="_blank" rel="noopener noreferrer">
+        <span class="icon">🛍</span>
+        <div>
+          <div>도매토피아</div>
+          <div class="link-desc">국내 도매 소싱 플랫폼</div>
+        </div>
+      </a>
     </div>
   </div>
 
@@ -416,21 +444,44 @@
         <div id="f_coupang_suggest" style="font-size:.75rem;color:#15803d;margin-top:3px;display:none"></div>
       </div>
       <div>
-        <label>소싱처</label>
-        <input type="text" id="f_source" placeholder="예: 알리익스프레스" />
+        <label>소싱처 종류</label>
+        <select id="f_source_type" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;">
+          <option value="해외">🌏 해외</option>
+          <option value="국내">🇰🇷 국내</option>
+        </select>
       </div>
       <div>
-        <label>메모</label>
-        <input type="text" id="f_memo" placeholder="메모" />
+        <label>소싱처 이름</label>
+        <input type="text" id="f_source" placeholder="예: 타오바오, 도매꾹" />
       </div>
       <div>
         <label>&nbsp;</label>
         <button class="btn btn-success" onclick="addItem()">추가</button>
       </div>
     </div>
-    <div style="margin-top:10px;">
-      <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">소싱 URL</label>
-      <input type="url" id="f_url" placeholder="https://..." style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+    <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">
+      <div>
+        <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">소싱 URL</label>
+        <input type="url" id="f_url" placeholder="https://..." style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">최저가/도매가 (원)</label>
+        <input type="number" id="f_wholesale_price" placeholder="0" min="0" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">최소주문수량</label>
+        <input type="number" id="f_min_order_qty" placeholder="1" min="1" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#555;display:block;margin-bottom:4px;">메모</label>
+        <input type="text" id="f_memo" placeholder="메모" style="width:100%;padding:7px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;" />
+      </div>
+    </div>
+    <div style="margin-top:10px;display:flex;align-items:center;gap:20px;">
+      <label style="display:flex;align-items:center;gap:6px;font-size:.85rem;color:#555;cursor:pointer;">
+        <input type="checkbox" id="f_has_customs_tax" style="width:15px;height:15px;accent-color:#2563eb;" />
+        🛃 관부가세 있음 <small style="color:#9ca3af">(해외 소싱 시 체크)</small>
+      </label>
     </div>
   </div>
 
@@ -443,8 +494,12 @@
           <tr>
             <th>#</th>
             <th>상품명</th>
+            <th>소싱처 종류</th>
             <th>소싱처</th>
             <th>매입가</th>
+            <th>도매가</th>
+            <th>최소수량</th>
+            <th>관부가세</th>
             <th>네이버 판매가</th>
             <th>네이버 마진율</th>
             <th>쿠팡 판매가</th>
@@ -608,6 +663,10 @@
         <input type="checkbox" id="chk_shipping_fee_handled" onclick="event.stopPropagation();toggleChecklistItem('shipping_fee_handled')" />
         <label for="chk_shipping_fee_handled">🚚 배송비 처리</label>
       </div>
+      <div class="checklist-item" id="ci_tax_invoice_issued" onclick="toggleChecklistItem('tax_invoice_issued')">
+        <input type="checkbox" id="chk_tax_invoice_issued" onclick="event.stopPropagation();toggleChecklistItem('tax_invoice_issued')" />
+        <label for="chk_tax_invoice_issued">🧾 세금계산서 발행</label>
+      </div>
     </div>
 
     <div class="modal-actions">
@@ -626,8 +685,23 @@
     <div class="modal-field"><label>매입가 (원)</label><input type="number" id="edit_purchase_price" min="0" /></div>
     <div class="modal-field"><label>네이버 판매가 (원)</label><input type="number" id="edit_naver_price" min="0" /></div>
     <div class="modal-field"><label>쿠팡 판매가 (원)</label><input type="number" id="edit_coupang_price" min="0" /></div>
-    <div class="modal-field"><label>소싱처</label><input type="text" id="edit_source" /></div>
+    <div class="modal-field">
+      <label>소싱처 종류</label>
+      <select id="edit_source_type" style="width:100%;padding:8px 10px;border:1px solid #d1d5db;border-radius:6px;font-size:.9rem;">
+        <option value="해외">🌏 해외</option>
+        <option value="국내">🇰🇷 국내</option>
+      </select>
+    </div>
+    <div class="modal-field"><label>소싱처 이름</label><input type="text" id="edit_source" placeholder="예: 타오바오, 도매꾹" /></div>
     <div class="modal-field"><label>소싱 URL</label><input type="url" id="edit_url" /></div>
+    <div class="modal-field"><label>최저가/도매가 (원)</label><input type="number" id="edit_wholesale_price" min="0" /></div>
+    <div class="modal-field"><label>최소주문수량</label><input type="number" id="edit_min_order_qty" min="1" /></div>
+    <div class="modal-field">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="edit_has_customs_tax" style="width:15px;height:15px;accent-color:#2563eb;" />
+        🛃 관부가세 있음
+      </label>
+    </div>
     <div class="modal-field"><label>메모</label><input type="text" id="edit_memo" /></div>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">취소</button>
@@ -862,7 +936,7 @@
     const tbody = document.getElementById('itemBody');
     tbody.innerHTML = '';
     if (items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="11" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="15" style="color:#9ca3af;padding:24px">등록된 상품이 없습니다.</td></tr>';
       return;
     }
     items.forEach((item, idx) => {
@@ -871,12 +945,15 @@
       const sourceCell = item.url
         ? `<a class="url-link" href="${esc(item.url)}" target="_blank" rel="noopener noreferrer" title="${esc(item.url)}">${esc(item.source || item.url)}</a>`
         : esc(item.source || '');
+      const sourceTypeBadge = item.source_type === '국내'
+        ? `<span style="background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:10px;font-size:.75rem;font-weight:600;">🇰🇷 국내</span>`
+        : `<span style="background:#eff6ff;color:#1d4ed8;padding:2px 7px;border-radius:10px;font-size:.75rem;font-weight:600;">🌏 해외</span>`;
       const returnOccurred = item.return_occurred || false;
       const checklist = item.return_checklist || {};
-      const doneCount = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled'].filter(k => checklist[k]).length;
+      const doneCount = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled','tax_invoice_issued'].filter(k => checklist[k]).length;
       let returnCell;
       if (returnOccurred) {
-        returnCell = `<span class="return-badge occurred" onclick="openReturnModal(${item.id})" title="반품 체크리스트 열기">⚠️ 반품 (${doneCount}/4)</span>`;
+        returnCell = `<span class="return-badge occurred" onclick="openReturnModal(${item.id})" title="반품 체크리스트 열기">⚠️ 반품 (${doneCount}/5)</span>`;
       } else {
         returnCell = `<span class="return-badge none" onclick="openReturnModal(${item.id})" title="반품 체크리스트 열기">반품 등록</span>`;
       }
@@ -884,8 +961,12 @@
       tr.innerHTML = `
         <td>${idx + 1}</td>
         <td class="name-cell" title="${esc(item.name)}">${esc(item.name)}</td>
+        <td>${sourceTypeBadge}</td>
         <td class="source-cell">${sourceCell}</td>
         <td>${fmt(item.purchase_price)}</td>
+        <td>${item.wholesale_price != null ? fmt(item.wholesale_price) : '-'}</td>
+        <td>${item.min_order_qty != null ? item.min_order_qty : '-'}</td>
+        <td>${item.has_customs_tax ? '<span title="관부가세 있음">🛃</span>' : ''}</td>
         <td>${fmt(item.naver_price)}</td>
         <td class="${marginClass(nm)}">${nm !== null ? nm + '%' : '-'}</td>
         <td>${fmt(item.coupang_price)}</td>
@@ -911,13 +992,19 @@
       purchase_price,
       naver_price: parseFloat(document.getElementById('f_naver_price').value) || null,
       coupang_price: parseFloat(document.getElementById('f_coupang_price').value) || null,
+      source_type: document.getElementById('f_source_type').value,
       source: document.getElementById('f_source').value.trim(),
       url: document.getElementById('f_url').value.trim(),
+      wholesale_price: parseFloat(document.getElementById('f_wholesale_price').value) || null,
+      min_order_qty: parseInt(document.getElementById('f_min_order_qty').value) || null,
+      has_customs_tax: document.getElementById('f_has_customs_tax').checked,
       memo: document.getElementById('f_memo').value.trim(),
     };
     const res = await fetch('/api/items', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
     if (res.ok) {
-      ['f_name','f_purchase_price','f_naver_price','f_coupang_price','f_source','f_url','f_memo'].forEach(id => document.getElementById(id).value = '');
+      ['f_name','f_purchase_price','f_naver_price','f_coupang_price','f_source','f_url','f_wholesale_price','f_min_order_qty','f_memo'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('f_has_customs_tax').checked = false;
+      document.getElementById('f_source_type').value = '해외';
       await loadItems();
       toast('상품이 추가되었습니다.');
     }
@@ -939,8 +1026,12 @@
     document.getElementById('edit_purchase_price').value = item.purchase_price;
     document.getElementById('edit_naver_price').value = item.naver_price || '';
     document.getElementById('edit_coupang_price').value = item.coupang_price || '';
+    document.getElementById('edit_source_type').value = item.source_type || '해외';
     document.getElementById('edit_source').value = item.source || '';
     document.getElementById('edit_url').value = item.url || '';
+    document.getElementById('edit_wholesale_price').value = item.wholesale_price != null ? item.wholesale_price : '';
+    document.getElementById('edit_min_order_qty').value = item.min_order_qty != null ? item.min_order_qty : '';
+    document.getElementById('edit_has_customs_tax').checked = item.has_customs_tax || false;
     document.getElementById('edit_memo').value = item.memo || '';
     document.getElementById('editModal').classList.add('open');
   }
@@ -954,8 +1045,12 @@
       purchase_price: parseFloat(document.getElementById('edit_purchase_price').value) || 0,
       naver_price: parseFloat(document.getElementById('edit_naver_price').value) || null,
       coupang_price: parseFloat(document.getElementById('edit_coupang_price').value) || null,
+      source_type: document.getElementById('edit_source_type').value,
       source: document.getElementById('edit_source').value.trim(),
       url: document.getElementById('edit_url').value.trim(),
+      wholesale_price: parseFloat(document.getElementById('edit_wholesale_price').value) || null,
+      min_order_qty: parseInt(document.getElementById('edit_min_order_qty').value) || null,
+      has_customs_tax: document.getElementById('edit_has_customs_tax').checked,
       memo: document.getElementById('edit_memo').value.trim(),
     };
     const res = await fetch(`/api/items/${id}`, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
@@ -986,6 +1081,7 @@
       customer_contact: checklist.customer_contact || false,
       stock_updated: checklist.stock_updated || false,
       shipping_fee_handled: checklist.shipping_fee_handled || false,
+      tax_invoice_issued: checklist.tax_invoice_issued || false,
     };
     document.getElementById('chk_return_occurred').checked = occurred;
     _syncReturnSubChecklist(occurred);
@@ -995,7 +1091,7 @@
   function _syncReturnSubChecklist(occurred) {
     document.getElementById('returnSubChecklist').classList.toggle('show', occurred);
     document.getElementById('returnOccurredRow').classList.toggle('done', occurred);
-    const keys = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled'];
+    const keys = ['refund_complete','customer_contact','stock_updated','shipping_fee_handled','tax_invoice_issued'];
     keys.forEach(k => {
       document.getElementById('chk_' + k).checked = _returnModalChecklist[k] || false;
       document.getElementById('ci_' + k).classList.toggle('done', _returnModalChecklist[k] || false);
@@ -1007,7 +1103,7 @@
     chk.checked = !chk.checked;
     if (!chk.checked) {
       // Clear sub-checklist when return is unchecked
-      _returnModalChecklist = { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false };
+      _returnModalChecklist = { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false, tax_invoice_issued: false };
     }
     _syncReturnSubChecklist(chk.checked);
   }
@@ -1023,7 +1119,7 @@
     const occurred = document.getElementById('chk_return_occurred').checked;
     const body = {
       return_occurred: occurred,
-      return_checklist: occurred ? _returnModalChecklist : { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false },
+      return_checklist: occurred ? _returnModalChecklist : { refund_complete: false, customer_contact: false, stock_updated: false, shipping_fee_handled: false, tax_invoice_issued: false },
     };
     const res = await fetch(`/api/items/${id}/return`, {
       method: 'PATCH',
